@@ -15,7 +15,7 @@ The models provide:
 - Field descriptions
 - Required vs optional field handling
 """
-from typing import Optional, Annotated, List
+from typing import Optional, Annotated, List, Dict, Union
 from pydantic import BaseModel, Field
 
 class NodeStatus(BaseModel):
@@ -102,15 +102,81 @@ class AuthorizationConfig(BaseModel):
     dynamic_client_registration: bool = True  # Allow dynamic client registration
     secret_key: Optional[str] = None  # JWT signing secret (generated if not provided)
 
-class Config(BaseModel):
-    """Root configuration model.
+class NodeConfig(BaseModel):
+    """Configuration for a single Proxmox node.
     
-    Combines all configuration models into a single validated
-    configuration object. Core sections are required, while
-    transport and authorization are optional with defaults.
+    Combines Proxmox connection and authentication settings
+    for a single node instance.
     """
     proxmox: ProxmoxConfig  # Required: Proxmox connection settings
     auth: AuthConfig  # Required: Authentication credentials
+    logging: Optional[LoggingConfig] = None  # Optional: Node-specific logging
+    transport: Optional[TransportConfig] = None  # Optional: Node-specific transport
+    authorization: Optional[AuthorizationConfig] = None  # Optional: Node-specific auth
+
+class MultiNodeConfig(BaseModel):
+    """Configuration for multiple Proxmox nodes.
+    
+    Manages configurations for multiple Proxmox instances
+    with a default node selection.
+    """
+    nodes: Dict[str, NodeConfig]  # Required: Node configurations by ID
+    default_node: str  # Required: Default node ID to use
+    logging: LoggingConfig  # Required: Global logging configuration
+    transport: TransportConfig = TransportConfig()  # Optional: Global transport settings
+    authorization: AuthorizationConfig = AuthorizationConfig()  # Optional: Global OAuth settings
+
+class Config(BaseModel):
+    """Root configuration model.
+    
+    Supports both single-node and multi-node configurations.
+    Automatically detects configuration type based on structure.
+    """
+    # Single-node configuration (legacy)
+    proxmox: Optional[ProxmoxConfig] = None
+    auth: Optional[AuthConfig] = None
+    
+    # Multi-node configuration (new)
+    nodes: Optional[Dict[str, NodeConfig]] = None
+    default_node: Optional[str] = None
+    
+    # Common configuration
     logging: LoggingConfig  # Required: Logging configuration
     transport: TransportConfig = TransportConfig()  # Optional: Transport settings
     authorization: AuthorizationConfig = AuthorizationConfig()  # Optional: OAuth settings
+    
+    def is_multi_node(self) -> bool:
+        """Check if this is a multi-node configuration."""
+        return self.nodes is not None and len(self.nodes) > 0
+    
+    def get_single_node_config(self) -> NodeConfig:
+        """Get single-node configuration (legacy mode)."""
+        if self.is_multi_node():
+            raise ValueError("Cannot get single-node config from multi-node configuration")
+        
+        if not self.proxmox or not self.auth:
+            raise ValueError("Single-node configuration missing required fields")
+            
+        return NodeConfig(
+            proxmox=self.proxmox,
+            auth=self.auth,
+            logging=self.logging,
+            transport=self.transport,
+            authorization=self.authorization
+        )
+    
+    def get_multi_node_config(self) -> MultiNodeConfig:
+        """Get multi-node configuration."""
+        if not self.is_multi_node():
+            raise ValueError("Cannot get multi-node config from single-node configuration")
+            
+        if not self.nodes or not self.default_node:
+            raise ValueError("Multi-node configuration missing required fields")
+            
+        return MultiNodeConfig(
+            nodes=self.nodes,
+            default_node=self.default_node,
+            logging=self.logging,
+            transport=self.transport,
+            authorization=self.authorization
+        )

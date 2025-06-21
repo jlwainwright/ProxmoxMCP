@@ -19,7 +19,9 @@
       "mcp__proxmox-mcp__get_cluster_status",
       "mcp__proxmox-mcp__get_vms",
       "mcp__proxmox-mcp__get_storage",
-      "mcp__proxmox-mcp__get_node_status"
+      "mcp__proxmox-mcp__get_node_status",
+      "Bash(git remote set-url:*)",
+      "Bash(ping:*)"
     ],
     "deny": []
   }

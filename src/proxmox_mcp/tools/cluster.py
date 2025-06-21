@@ -28,7 +28,7 @@ class ClusterTools(ProxmoxTool):
     proper operation of the Proxmox environment.
     """
 
-    def get_cluster_status(self) -> List[Content]:
+    def get_cluster_status(self, proxmox_node: str = None) -> List[Content]:
         """Get overall Proxmox cluster health and configuration status.
 
         Retrieves comprehensive cluster information including:
@@ -42,6 +42,9 @@ class ClusterTools(ProxmoxTool):
         - Monitoring node membership
         - Verifying resource availability
         - Detecting potential issues
+
+        Args:
+            proxmox_node: Proxmox instance to query (optional, uses default if None)
 
         Returns:
             List of Content objects containing formatted cluster status:
@@ -64,7 +67,8 @@ class ClusterTools(ProxmoxTool):
                         - API endpoint failures
         """
         try:
-            result = self.proxmox.cluster.status.get()
+            proxmox = self._get_api(proxmox_node)
+            result = proxmox.cluster.status.get()
             status = {
                 "name": result[0].get("name") if result else None,
                 "quorum": result[0].get("quorate"),

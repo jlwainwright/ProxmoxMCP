@@ -59,3 +59,13 @@ coverage.xml
 
 # Local configuration
 config/config.json
+
+# Planning and Documentation
+planning/
+*.md
+docs/build/
+docs/_build/
+
+# Temporary files
+temp/
+tmp/

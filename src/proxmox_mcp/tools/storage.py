@@ -30,7 +30,7 @@ class StorageTools(ProxmoxTool):
     storage information might be temporarily unavailable.
     """
 
-    def get_storage(self) -> List[Content]:
+    def get_storage(self, proxmox_node: str = None) -> List[Content]:
         """List storage pools across the cluster with detailed status.
 
         Retrieves comprehensive information for each storage pool including:
@@ -44,6 +44,9 @@ class StorageTools(ProxmoxTool):
         
         Implements a fallback mechanism that returns basic information
         if detailed status retrieval fails for any storage pool.
+
+        Args:
+            proxmox_node: Proxmox instance to query (optional, uses default if None)
 
         Returns:
             List of Content objects containing formatted storage information:
@@ -61,13 +64,14 @@ class StorageTools(ProxmoxTool):
             RuntimeError: If the cluster-wide storage query fails
         """
         try:
-            result = self.proxmox.storage.get()
+            proxmox = self._get_api(proxmox_node)
+            result = proxmox.storage.get()
             storage = []
             
             for store in result:
                 # Get detailed storage info including usage
                 try:
-                    status = self.proxmox.nodes(store.get("node", "localhost")).storage(store["storage"]).status.get()
+                    status = proxmox.nodes(store.get("node", "localhost")).storage(store["storage"]).status.get()
                     storage.append({
                         "storage": store["storage"],
                         "type": store["type"],

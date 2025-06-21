@@ -29,14 +29,16 @@ class ProxmoxManager:
     ensuring proper initialization and error handling for all API operations.
     """
     
-    def __init__(self, proxmox_config: ProxmoxConfig, auth_config: AuthConfig):
+    def __init__(self, proxmox_config: ProxmoxConfig, auth_config: AuthConfig, node_id: str = "default"):
         """Initialize the Proxmox API manager.
 
         Args:
             proxmox_config: Proxmox connection configuration
             auth_config: Authentication configuration
+            node_id: Identifier for this node instance (for logging/tracking)
         """
-        self.logger = logging.getLogger("proxmox-mcp.proxmox")
+        self.node_id = node_id
+        self.logger = logging.getLogger(f"proxmox-mcp.proxmox.{node_id}")
         self.config = self._create_config(proxmox_config, auth_config)
         self.api = self._setup_api()
 
@@ -87,17 +89,17 @@ class ProxmoxManager:
                         - SSL certificate validation errors
         """
         try:
-            self.logger.info(f"Connecting to Proxmox host: {self.config['host']}")
+            self.logger.info(f"Connecting to Proxmox host: {self.config['host']} (node: {self.node_id})")
             api = ProxmoxAPI(**self.config)
             
             # Test connection
-            api.version.get()
-            self.logger.info("Successfully connected to Proxmox API")
+            version_info = api.version.get()
+            self.logger.info(f"Successfully connected to Proxmox API (node: {self.node_id}, version: {version_info.get('version', 'unknown')})")
             
             return api
         except Exception as e:
-            self.logger.error(f"Failed to connect to Proxmox: {e}")
-            raise RuntimeError(f"Failed to connect to Proxmox: {e}")
+            self.logger.error(f"Failed to connect to Proxmox (node: {self.node_id}): {e}")
+            raise RuntimeError(f"Failed to connect to Proxmox (node: {self.node_id}): {e}")
 
     def get_api(self) -> ProxmoxAPI:
         """Get the initialized Proxmox API instance.

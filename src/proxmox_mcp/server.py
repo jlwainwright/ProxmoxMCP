@@ -33,7 +33,7 @@ import uvicorn
 
 from .config.loader import load_config
 from .core.logging import setup_logging
-from .core.proxmox import ProxmoxManager
+from .core.node_manager import NodeManager
 from .tools.node import NodeTools
 from .tools.vm import VMTools
 from .tools.storage import StorageTools
@@ -64,14 +64,13 @@ class ProxmoxMCPServer:
         self._validate_config()
         
         # Initialize core components
-        self.proxmox_manager = ProxmoxManager(self.config.proxmox, self.config.auth)
-        self.proxmox = self.proxmox_manager.get_api()
+        self.node_manager = NodeManager(self.config)
         
-        # Initialize tools
-        self.node_tools = NodeTools(self.proxmox)
-        self.vm_tools = VMTools(self.proxmox)
-        self.storage_tools = StorageTools(self.proxmox)
-        self.cluster_tools = ClusterTools(self.proxmox)
+        # Initialize tools with node manager
+        self.node_tools = NodeTools(self.node_manager)
+        self.vm_tools = VMTools(self.node_manager)
+        self.storage_tools = StorageTools(self.node_manager)
+        self.cluster_tools = ClusterTools(self.node_manager)
         
         # Initialize MCP server
         self.mcp = FastMCP("ProxmoxMCP")
@@ -128,37 +127,47 @@ class ProxmoxMCPServer:
         
         # Node tools
         @self.mcp.tool(description=GET_NODES_DESC)
-        def get_nodes():
-            return self.node_tools.get_nodes()
+        def get_nodes(
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.node_tools.get_nodes(proxmox_node)
 
         @self.mcp.tool(description=GET_NODE_STATUS_DESC)
         def get_node_status(
-            node: Annotated[str, Field(description="Name/ID of node to query (e.g. 'pve1', 'proxmox-node2')")]
+            node: Annotated[str, Field(description="Name/ID of node to query (e.g. 'pve1', 'proxmox-node2')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
         ):
-            return self.node_tools.get_node_status(node)
+            return self.node_tools.get_node_status(node, proxmox_node)
 
         # VM tools
         @self.mcp.tool(description=GET_VMS_DESC)
-        def get_vms():
-            return self.vm_tools.get_vms()
+        def get_vms(
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.vm_tools.get_vms(proxmox_node)
 
         @self.mcp.tool(description=EXECUTE_VM_COMMAND_DESC)
         async def execute_vm_command(
             node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
             vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
-            command: Annotated[str, Field(description="Shell command to run (e.g. 'uname -a', 'systemctl status nginx')")]
+            command: Annotated[str, Field(description="Shell command to run (e.g. 'uname -a', 'systemctl status nginx')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
         ):
-            return await self.vm_tools.execute_command(node, vmid, command)
+            return await self.vm_tools.execute_command(node, vmid, command, proxmox_node)
 
         # Storage tools
         @self.mcp.tool(description=GET_STORAGE_DESC)
-        def get_storage():
-            return self.storage_tools.get_storage()
+        def get_storage(
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.storage_tools.get_storage(proxmox_node)
 
         # Cluster tools
         @self.mcp.tool(description=GET_CLUSTER_STATUS_DESC)
-        def get_cluster_status():
-            return self.cluster_tools.get_cluster_status()
+        def get_cluster_status(
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.cluster_tools.get_cluster_status(proxmox_node)
 
     def start(self) -> None:
         """Start the MCP server with configured transport.

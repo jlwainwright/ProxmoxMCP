@@ -15,28 +15,52 @@ from typing import Any, Dict, List, Optional, Union
 from mcp.types import TextContent as Content
 from proxmoxer import ProxmoxAPI
 from ..formatting import ProxmoxTemplates
+from ..core.node_manager import NodeManager
 
 class ProxmoxTool:
     """Base class for Proxmox MCP tools.
     
     This class provides common functionality used by all Proxmox tool implementations:
-    - Proxmox API access
+    - Multi-node Proxmox API access via NodeManager
     - Standardized logging
     - Response formatting
     - Error handling
+    - Dynamic node selection
     
     All tool classes should inherit from this base class to ensure consistent
     behavior and error handling across the MCP server.
     """
 
-    def __init__(self, proxmox_api: ProxmoxAPI):
+    def __init__(self, node_manager: NodeManager):
         """Initialize the tool.
 
         Args:
-            proxmox_api: Initialized ProxmoxAPI instance
+            node_manager: NodeManager instance for multi-node API access
         """
-        self.proxmox = proxmox_api
+        self.node_manager = node_manager
         self.logger = logging.getLogger(f"proxmox-mcp.{self.__class__.__name__.lower()}")
+    
+    def _get_api(self, node_id: Optional[str] = None) -> ProxmoxAPI:
+        """Get ProxmoxAPI instance for specified node.
+        
+        Provides dynamic node selection for tool operations.
+        If node_id is None, uses the default node.
+        
+        Args:
+            node_id: Node identifier to get API for
+            
+        Returns:
+            ProxmoxAPI instance for the specified node
+            
+        Raises:
+            ValueError: If node_id is not configured
+            RuntimeError: If connection to node fails
+        """
+        try:
+            return self.node_manager.get_api(node_id)
+        except Exception as e:
+            self.logger.error(f"Failed to get API for node '{node_id}': {e}")
+            raise
 
     def _format_response(self, data: Any, resource_type: Optional[str] = None) -> List[Content]:
         """Format response data into MCP content using templates.

@@ -33,16 +33,18 @@ class VMTools(ProxmoxTool):
     with QEMU guest agent for VM command execution.
     """
 
-    def __init__(self, proxmox_api):
+    def __init__(self, node_manager):
         """Initialize VM tools.
 
         Args:
-            proxmox_api: Initialized ProxmoxAPI instance
+            node_manager: NodeManager instance for multi-node API access
         """
-        super().__init__(proxmox_api)
-        self.console_manager = VMConsoleManager(proxmox_api)
+        super().__init__(node_manager)
+        # Note: Console manager will need to be updated for multi-node support
+        # For now, we'll create it with the default API
+        self.console_manager = VMConsoleManager(self.node_manager.get_api())
 
-    def get_vms(self) -> List[Content]:
+    def get_vms(self, proxmox_node: str = None) -> List[Content]:
         """List all virtual machines across the cluster with detailed status.
 
         Retrieves comprehensive information for each VM including:
@@ -55,6 +57,9 @@ class VMTools(ProxmoxTool):
         
         Implements a fallback mechanism that returns basic information
         if detailed configuration retrieval fails for any VM.
+
+        Args:
+            proxmox_node: Proxmox instance to query (optional, uses default if None)
 
         Returns:
             List of Content objects containing formatted VM information:
@@ -74,15 +79,16 @@ class VMTools(ProxmoxTool):
             RuntimeError: If the cluster-wide VM query fails
         """
         try:
+            proxmox = self._get_api(proxmox_node)
             result = []
-            for node in self.proxmox.nodes.get():
+            for node in proxmox.nodes.get():
                 node_name = node["node"]
-                vms = self.proxmox.nodes(node_name).qemu.get()
+                vms = proxmox.nodes(node_name).qemu.get()
                 for vm in vms:
                     vmid = vm["vmid"]
                     # Get VM config for CPU cores
                     try:
-                        config = self.proxmox.nodes(node_name).qemu(vmid).config.get()
+                        config = proxmox.nodes(node_name).qemu(vmid).config.get()
                         result.append({
                             "vmid": vmid,
                             "name": vm["name"],
@@ -111,7 +117,7 @@ class VMTools(ProxmoxTool):
         except Exception as e:
             self._handle_error("get VMs", e)
 
-    async def execute_command(self, node: str, vmid: str, command: str) -> List[Content]:
+    async def execute_command(self, node: str, vmid: str, command: str, proxmox_node: str = None) -> List[Content]:
         """Execute a command in a VM via QEMU guest agent.
 
         Uses the QEMU guest agent to execute commands within a running VM.
@@ -124,6 +130,7 @@ class VMTools(ProxmoxTool):
             node: Host node name (e.g., 'pve1', 'proxmox-node2')
             vmid: VM ID number (e.g., '100', '101')
             command: Shell command to run (e.g., 'uname -a', 'systemctl status nginx')
+            proxmox_node: Proxmox instance to query (optional, uses default if None)
 
         Returns:
             List of Content objects containing formatted command output:
@@ -138,14 +145,24 @@ class VMTools(ProxmoxTool):
             RuntimeError: If command execution fails due to permissions or other issues
         """
         try:
-            result = await self.console_manager.execute_command(node, vmid, command)
-            # Use the command output formatter from ProxmoxFormatters
+            # For multi-node support, we need to update the console manager
+            # For now, we'll use the direct API approach
+            proxmox = self._get_api(proxmox_node)
+            
+            # Execute command via QEMU guest agent
+            payload = {
+                'command': command
+            }
+            
+            result = proxmox.nodes(node).qemu(vmid).agent.exec.post(**payload)
+            
+            # Format the result
             from ..formatting import ProxmoxFormatters
             formatted = ProxmoxFormatters.format_command_output(
-                success=result["success"],
+                success=True,
                 command=command,
-                output=result["output"],
-                error=result.get("error")
+                output=str(result),
+                error=None
             )
             return [Content(type="text", text=formatted)]
         except Exception as e:
