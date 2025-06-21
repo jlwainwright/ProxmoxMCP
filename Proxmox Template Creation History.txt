@@ -1,0 +1,707 @@
+╭───────────────────────────────────────────────────────────╮ 
+│ ✻ Welcome to Claude Code!                                 │ 
+│                                                           │ 
+│   /help for help, /status for your current setup          │ 
+│                                                           │ 
+│   cwd: /Users/jacques/DevFolder/cursor-talk-to-figma-mcp  │ 
+╰───────────────────────────────────────────────────────────╯ 
+ 
+ Tips for getting started: 
+ 
+ 1. Run /init to create a CLAUDE.md file with instructions for Claude 
+ 2. Use Claude to help with file analysis, editing, bash commands and git 
+ 3. Be as specific as you would with another engineer for the best results 
+ 4. ✔ Run /terminal-setup to set up terminal integration 
+ 
+> /mcp  
+  ⎿  (no content) 
+ 
+! pwd 
+  ⎿  /Users/jacques/DevFolder/cursor-talk-to-figma-mcp 
+ 
+> /exit  
+  ⎿  (no content) 
+ 
+╭──────────────────────────────────────────────────────────────────────────────╮ 
+│ >                                                                            │ 
+╰──────────────────────────────────────────────────────────────────────────────╯ 
+  ? for shortcuts 
+ 
+ 
+➜  cursor-talk-to-figma-mcp git:(main) ✗ cd /Users/jacques/DevFolder/firecrawl/f 
+irecrawl-mcp-clean && git status 
+On branch main 
+Changes not staged for commit: 
+  (use "git add <file>..." to update what will be committed) 
+  (use "git restore <file>..." to discard changes in working directory) 
+	modified:   LXC_DEPLOYMENT.md 
+	modified:   README.md 
+ 
+Untracked files: 
+  (use "git add <file>..." to include in what will be committed) 
+	.gitignore 
+ 
+no changes added to commit (use "git add" and/or "git commit -a") 
+➜  firecrawl-mcp-clean git:(main) ✗ git ls-tree -r HEAD | grep -E '\.env' 
+100644 blob 8a8edce43372e6800817754707a0ab4ad462b936	.env 
+100644 blob f9399bb5fdb3605d4b19b4c572619d15a06ffbab	.env.production.template 
+➜  firecrawl-mcp-clean git:(main) ✗ ls -la | grep -E '\.env' 
+-rw-r--r--@  1 jacques  staff   4105 Jun 21 08:11 .env 
+-rw-r--r--@  1 jacques  staff   4986 Jun 21 08:51 .env.production.template 
+➜  firecrawl-mcp-clean git:(main) ✗ git rm --cached .env 
+rm '.env' 
+➜  firecrawl-mcp-clean git:(main) ✗ rm .env 
+➜  firecrawl-mcp-clean git:(main) ✗ git add .gitignore 
+➜  firecrawl-mcp-clean git:(main) ✗ git status 
+On branch main 
+Changes to be committed: 
+  (use "git restore --staged <file>..." to unstage) 
+	deleted:    .env 
+	new file:   .gitignore 
+ 
+Changes not staged for commit: 
+  (use "git add <file>..." to update what will be committed) 
+  (use "git restore <file>..." to discard changes in working directory) 
+	modified:   LXC_DEPLOYMENT.md 
+	modified:   README.md 
+ 
+➜  firecrawl-mcp-clean git:(main) ✗ git commit -m "security: remove .env file fr 
+om tracking and add .gitignore 
+dquote>  
+dquote> - Remove .env file from git tracking to prevent API key exposure 
+dquote> - Add comprehensive .gitignore file to exclude sensitive files 
+dquote> - Prevent future accidental commits of environment variables" 
+[main ed16fb4] security: remove .env file from tracking and add .gitignore 
+ 2 files changed, 163 insertions(+), 91 deletions(-) 
+ delete mode 100644 .env 
+ create mode 100644 .gitignore 
+➜  firecrawl-mcp-clean git:(main) ✗ git push origin main 
+Enumerating objects: 4, done. 
+Counting objects: 100% (4/4), done. 
+Delta compression using up to 14 threads 
+Compressing objects: 100% (3/3), done. 
+Writing objects: 100% (3/3), 1.36 KiB | 1.36 MiB/s, done. 
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 
+remote: Resolving deltas: 100% (1/1), completed with 1 local object. 
+To https://github.com/jlwainwright/firecrawl-mcp-stack.git 
+   95eadf8..ed16fb4  main -> main 
+➜  firecrawl-mcp-clean git:(main) ✗ git ls-tree -r HEAD | grep -E '\.env' 
+100644 blob f9399bb5fdb3605d4b19b4c572619d15a06ffbab	.env.production.template 
+➜  firecrawl-mcp-clean git:(main) ✗ ls -la .gitignore 
+-rw-r--r--@ 1 jacques  staff  2166 Jun 21 09:45 .gitignore 
+➜  firecrawl-mcp-clean git:(main) ✗ cd /Users/jacques/DevFolder/ProxmoxVE && chm 
+od +x install/firecrawl-mcp-install.sh ct/firecrawl-mcp.sh 
+➜  ProxmoxVE git:(main) ✗ ls -la /Users/jacques/DevFolder/ProxmoxVE/install/fire 
+crawl-mcp-install.sh 
+-rwxr-xr-x@ 1 jacques  staff  7667 Jun 21 10:37 /Users/jacques/DevFolder/ProxmoxVE/install/firecrawl-mcp-install.sh 
+➜  ProxmoxVE git:(main) ✗ ls -la /Users/jacques/DevFolder/ProxmoxVE/ct/firecrawl 
+-mcp.sh 
+-rwxr-xr-x@ 1 jacques  staff  2232 Jun 21 10:37 /Users/jacques/DevFolder/ProxmoxVE/ct/firecrawl-mcp.sh 
+➜  ProxmoxVE git:(main) ✗ cd /Users/jacques/DevFolder/ProxmoxVE && git status 
+On branch main 
+Your branch is up to date with 'origin/main'. 
+ 
+Untracked files: 
+  (use "git add <file>..." to include in what will be committed) 
+	ct/firecrawl-mcp.sh 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+f0627111 (HEAD -> main) Add Firecrawl MCP Server installation script 
+a8deff54 (origin/main, origin/HEAD) Update CHANGELOG.md (#5345) 
+e33cf652 Update versions.json (#5344) 
+(END) 
+f0627111 (HEAD -> main) Add Firecrawl MCP Server installation script 
+a8deff54 (origin/main, origin/HEAD) Update CHANGELOG.md (#5345) 
+e33cf652 Update versions.json (#5344) 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+...skipping... 
+f0627111 (HEAD -> main) Add Firecrawl MCP Server installation script 
+a8deff54 (origin/main, origin/HEAD) Update CHANGELOG.md (#5345) 
+e33cf652 Update versions.json (#5344) 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+f0627111 (HEAD -> main) Add Firecrawl MCP Server installation script 
+a8deff54 (origin/main, origin/HEAD) Update CHANGELOG.md (#5345) 
+e33cf652 Update versions.json (#5344) 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+~ 
+...skipping... 
+	ct/headers/firecrawl-mcp 
+	frontend/public/json/firecrawl-mcp.json 
+	install/firecrawl-mcp-install.sh 
+ 
+nothing added to commit but untracked files present (use "git add" to track) 
+➜  ProxmoxVE git:(main) ✗ git add ct/firecrawl-mcp.sh ct/headers/firecrawl-mcp f 
+rontend/public/json/firecrawl-mcp.json install/firecrawl-mcp-install.sh 
+➜  ProxmoxVE git:(main) ✗ git commit -m "Add Firecrawl MCP Server installation s 
+cript 
+dquote>  
+dquote> - Add firecrawl-mcp-install.sh for Proxmox container deployment 
+dquote> - Add firecrawl-mcp.sh CT script with update functionality 
+dquote> - Include header file for proper CT script structure 
+dquote> - Add JSON metadata for web interface integration 
+dquote> - Full MCP server setup with systemd service 
+dquote> - Configuration management helper script 
+dquote> - Support for self-hosted and cloud Firecrawl instances" 
+[main f0627111] Add Firecrawl MCP Server installation script 
+ 4 files changed, 499 insertions(+) 
+ create mode 100755 ct/firecrawl-mcp.sh 
+ create mode 100644 ct/headers/firecrawl-mcp 
+ create mode 100644 frontend/public/json/firecrawl-mcp.json 
+ create mode 100755 install/firecrawl-mcp-install.sh 
+➜  ProxmoxVE git:(main) git log --oneline -n 3 
+ 
+➜  ProxmoxVE git:(main)  
+➜  ProxmoxVE git:(main) docker ps -a --format "table {{.ID}}\t{{.Names}}\t{{.Ima 
+ge}}\t{{.Status}}\t{{.CreatedAt}}" 
+CONTAINER ID   NAMES                                                     IMAGE                                                                         STATUS                          CREATED AT 
+04b98cf6d4dd   gallant_williamson                                        alpine/socat                                                                  Up 14 minutes                   2025-06-21 10:46:37 +0200 SAST 
+bc9388ce0028   cyberzapend-frontend-1                                    cyberzapend-frontend                                                          Created                         2025-06-21 10:22:41 +0200 SAST 
+d8380924a06d   cyberzapend-backend-1                                     cyberzapend-backend                                                           Restarting (1) 55 seconds ago   2025-06-21 10:22:41 +0200 SAST 
+506c7320ce7f   cyberzapend-postgres-1                                    postgres:16                                                                   Up 38 minutes (healthy)         2025-06-21 10:22:41 +0200 SAST 
+c46c7c7c8c25   devfolder-n8n-1                                           n8nio/n8n                                                                     Up 2 hours                      2025-06-21 09:01:26 +0200 SAST 
+66e82e634181   devfolder-postgres-1                                      postgres:16                                                                   Up 2 hours                      2025-06-21 09:01:26 +0200 SAST 
+b3b8eb8da047   condescending_mclaren                                     alpine/socat                                                                  Up 2 hours                      2025-06-21 08:53:40 +0200 SAST 
+bea003320d3e   nice_mcnulty                                              alpine/socat                                                                  Up 2 hours                      2025-06-21 08:39:00 +0200 SAST 
+dd31d7afa5dd   firecrawl-mcp-server-1                                    firecrawl-mcp-server                                                          Up 3 hours                      2025-06-21 07:38:16 +0200 SAST 
+0e6af8553541   condescending_hugle                                       alpine/socat                                                                  Up 4 hours                      2025-06-21 07:22:47 +0200 SAST 
+d6a41acc2abc   firecrawl-worker-1                                        ghcr.io/mendableai/firecrawl                                                  Up 4 hours                      2025-06-21 07:15:57 +0200 SAST 
+ba6642813e2c   firecrawl-supabase-studio-1                               supabase/studio:latest                                                        Up 4 hours (unhealthy)          2025-06-21 07:15:57 +0200 SAST 
+30722864d0e3   firecrawl-api-1                                           ghcr.io/mendableai/firecrawl                                                  Up 4 hours                      2025-06-21 07:15:57 +0200 SAST 
+2f494a3350dc   firecrawl-supabase-rest-1                                 postgrest/postgrest:v11.2.2                                                   Exited (255) 3 minutes ago      2025-06-21 07:15:57 +0200 SAST 
+b43c0e38cfff   firecrawl-supabase-db-1                                   postgres:15-alpine                                                            Up 4 hours (healthy)            2025-06-21 07:15:57 +0200 SAST 
+9d329feb9cc2   firecrawl-redis-1                                         redis:alpine                                                                  Up 4 hours                      2025-06-21 07:15:57 +0200 SAST 
+36bb362e00eb   firecrawl-playwright-service-1                            ghcr.io/mendableai/playwright-service:latest                                  Up 4 hours                      2025-06-21 07:15:57 +0200 SAST 
+e6ad5711841c   optimistic_knuth                                          vsc-vscode-6ff6613a528d561c4da804a0d5b0635dea4499428b515fec2e823575f8edf5f4   Up 4 hours                      2025-06-21 06:44:38 +0200 SAST 
+c3522662fd54   relaxed_kapitsa                                           alpine/socat                                                                  Up 5 hours                      2025-06-21 06:18:47 +0200 SAST 
+9166d5ff61eb   zealous_ganguly                                           alpine/socat                                                                  Up 5 hours                      2025-06-21 06:18:47 +0200 SAST 
+2218ec092ce2   stupefied_keller                                          alpine/socat                                                                  Up 5 hours                      2025-06-21 06:18:45 +0200 SAST 
+914bb94fb223   musing_neumann                                            vonwig/inotifywait:latest                                                     Up 5 hours                      2025-06-21 06:14:00 +0200 SAST 
+2569ecf5e3ec   docker_labs-ai-tools-for-devs-desktop-extension-service   mcp/docker:0.0.17                                                             Up 5 hours                      2025-06-18 20:44:55 +0200 SAST 
+a3edb129359e   telkombe_remote-docker-desktop-extension-service          telkombe/remote-docker:1.0.41                                                 Up 5 hours                      2025-06-14 16:11:08 +0200 SAST 
+➜  ProxmoxVE git:(main) docker images --format "table {{.Repository}}\t{{.Tag}}\ 
+t{{.ID}}\t{{.CreatedAt}}\t{{.Size}}" | head -20 
+REPOSITORY                                                                    TAG             IMAGE ID       CREATED AT                       SIZE 
+cyberzapend-backend                                                           latest          2875a6d752a6   2025-06-21 10:21:08 +0200 SAST   904MB 
+firecrawl-mcp-server                                                          latest          93430992501b   2025-06-21 07:38:08 +0200 SAST   374MB 
+vsc-vscode-6ff6613a528d561c4da804a0d5b0635dea4499428b515fec2e823575f8edf5f4   latest          f5b85c9f8ca2   2025-06-21 06:44:06 +0200 SAST   5.97GB 
+ghcr.io/mendableai/firecrawl                                                  latest          0893cfdc387c   2025-06-21 02:04:44 +0200 SAST   1.31GB 
+cyberzapend-frontend                                                          latest          01bb4c45bf62   2025-06-19 13:07:13 +0200 SAST   2.95GB 
+mcp/neo4j-memory                                                              latest          f34da6f30310   2025-06-19 08:15:48 +0200 SAST   274MB 
+openproject-mcp-server-openproject-mcp                                        latest          a32651b4d60b   2025-06-18 21:05:03 +0200 SAST   289MB 
+mcpjungle-mcpjungle-web                                                       latest          818947e7c60b   2025-06-18 06:14:20 +0200 SAST   209MB 
+mcpjungle-mcpjungle                                                           latest          d2b6dd5c0256   2025-06-18 06:14:03 +0200 SAST   68.6MB 
+mcp/time                                                                      latest          9c46a918633f   2025-06-17 18:00:23 +0200 SAST   357MB 
+mcp/playwright                                                                latest          66b726d93f9b   2025-06-17 16:46:30 +0200 SAST   1.68GB 
+mcp/tavily                                                                    latest          121e53056e10   2025-06-16 21:34:30 +0200 SAST   242MB 
+mcp/perplexity-ask                                                            latest          7816f45a6f26   2025-06-16 21:30:27 +0200 SAST   240MB 
+mcp/openapi-schema                                                            latest          5da1c1870748   2025-06-16 21:29:25 +0200 SAST   258MB 
+mcp/obsidian                                                                  latest          0eba4c05742a   2025-06-16 21:29:12 +0200 SAST   237MB 
+mcp/node-code-sandbox                                                         latest          754294104c15   2025-06-16 21:28:52 +0200 SAST   687MB 
+mcp/kong                                                                      latest          7988d6e1b0bf   2025-06-16 21:26:17 +0200 SAST   340MB 
+mcp/grafana                                                                   latest          82fac41eff2f   2025-06-16 21:24:24 +0200 SAST   197MB 
+mcp/github-mcp-server                                                         latest          b9fcfe774e64   2025-06-16 21:23:09 +0200 SAST   29.8MB 
+➜  ProxmoxVE git:(main) docker system df 
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE 
+Images          57        16        45.09GB   28.26GB (62%) 
+Containers      24        22        1.545GB   8.192kB (0%) 
+Local Volumes   55        8         1.542GB   689.5MB (44%) 
+Build Cache     106       0         1.635GB   1.635GB 
+➜  ProxmoxVE git:(main) echo "=== Stopping containers with auto-generated names  
+===" && docker stop gallant_williamson condescending_mclaren nice_mcnulty condes 
+cending_hugle optimistic_knuth relaxed_kapitsa zealous_ganguly stupefied_keller  
+musing_neumann 
+=== Stopping containers with auto-generated names === 
+gallant_williamson 
+condescending_mclaren 
+nice_mcnulty 
+condescending_hugle 
+optimistic_knuth 
+relaxed_kapitsa 
+zealous_ganguly 
+stupefied_keller 
+musing_neumann 
+➜  ProxmoxVE git:(main) echo "=== Removing stopped containers ===" && docker rm  
+gallant_williamson condescending_mclaren nice_mcnulty condescending_hugle optimi 
+stic_knuth relaxed_kapitsa zealous_ganguly stupefied_keller musing_neumann 
+=== Removing stopped containers === 
+Error response from daemon: No such container: gallant_williamson 
+Error response from daemon: No such container: condescending_mclaren 
+Error response from daemon: No such container: nice_mcnulty 
+Error response from daemon: No such container: condescending_hugle 
+Error response from daemon: cannot remove container "optimistic_knuth": container is running: stop the container before removing or force remove 
+Error response from daemon: No such container: relaxed_kapitsa 
+Error response from daemon: No such container: zealous_ganguly 
+Error response from daemon: No such container: stupefied_keller 
+Error response from daemon: No such container: musing_neumann 
+➜  ProxmoxVE git:(main) docker ps -a --format "table {{.Names}}\t{{.Status}}" |  
+grep -E "(gallant_|condescending_|nice_|optimistic_|relaxed_|zealous_|stupefied_ 
+|musing_)" 
+optimistic_knuth                                          Up 18 seconds 
+➜  ProxmoxVE git:(main) echo "=== Stopping and removing remaining container ===" 
+ && docker stop optimistic_knuth && docker rm optimistic_knuth 
+=== Stopping and removing remaining container === 
+optimistic_knuth 
+optimistic_knuth 
+➜  ProxmoxVE git:(main) echo "=== Removing unused images ===" && docker image pr 
+une -f 
+=== Removing unused images === 
+Total reclaimed space: 0B 
+➜  ProxmoxVE git:(main) echo "=== Removing unused volumes ===" && docker volume  
+prune -f 
+=== Removing unused volumes === 
+Deleted Volumes: 
+1027f697d6bb4de075baf7b6a4c691e73761c64996c3f6a6db948a1c90669c4c 
+3d059ca15f4ef82c8f193ac995edc3d906e2cc44cf79de2827a763c868f4b997 
+b750fdbb15acddf11f20fdd82995a7c7d4c9f168c003c18cd5914cf5f0203a81 
+c12d3e323f91844fb79291d75cae0e7c037513a8031203e2ccfe76fcb94ebf52 
+ed4e1eef7d4fde106bdd4c7585cdb7f14502132a98ea0ccbec4c3586065f443d 
+253cf40af7c16c74ca0bee586e62b28e48fbd6f72cfd4d342f9003cae2d4dc08 
+45a5f08918a9acf0b0e20b8bd6d5cdff06415e42b563a712179147086cbdfb74 
+9189b98a691508d7f0aa040d287a0806440f3f669a77ac3c534b35142ea903f8 
+ade8b657905f1eaf89c6563717381b5eb6a0741a8ffe4e06505bc7b8d36e683c 
+d0aa92443b2b268c83b7f0f4774a3539041b88f248fb8bcfaf7b2f24784c77b8 
+d479683397e7cfb27f37814f05dbbf45886181e2bd1f5dc6c1582a4f5c3365d7 
+8bdee594292d9631b374570baf932c3f27d16568f95f0f81041bd49ef12fde6e 
+06938ad7f9e92ce8d57cb0b6bf560cb7a19c3d9399eee8c29a44ba8893d8131e 
+264c2f2f8dd177cfef9d30a1ae818b60d525a1fd62bb6e479193175e0b0b4620 
+2765d934c1258afe747902577f3e6e417b6d4266da9be03bbdbb2cf481717972 
+5a5c9e3ea4a4a15502119a28570022d5b33952c8f87ba271487c2152e21e42be 
+6da90cd01f40f1fd48dc8f84d24d4f8123586d56be7aac241d92a34fbe25daba 
+a15111a12bbd7f666e2065e4d86f947b4481ac30ecd2fa937a449deb7cdd623c 
+dcf172ce472389454ce6cac062061ed238216e665169febe6288bc9b0e5fcbdf 
+ea9ebcfec778d95ca64672d2d2442111fe8e70a11bd60a8a2e89bfb8cb36a136 
+1cc6c0064938198a678d4a16d53059ad35a050a4c4f16f7e590412b3cf5bae41 
+da61431f97c579ee234bf832ef085a283a3546fb9e4afb426edf22967f3f42b2 
+fed54b5bb5e10f0697d2b06aacbc73528b7007092522ed6efef405d8b9688696 
+5443f4fa9a0ea694faa4be70b45e1d04a25d849a4b9ab9f3c71eb705c28fe7a3 
+a521b7662c3c9b3bb1bfa9ee76a6f5c75ffa4de94c8eb27dffbee7e2ec93a345 
+f861d3762910827e5793479aeaef4d749ee1e3be06b0d9d965f0ee2a6a5e1be7 
+fd8bdee396a733c29c115fb74e6050874c02c0d07297d6a51e9fc2fbd3d62a43 
+076919a5303a66b7db31e30f69cd504dd267c0a86efed286aca311f336c06f32 
+8ece3baa25b28afc41f3877fb7e02b0f68604eaadaea5dc6cb6f54163c6a0c36 
+9043c08dd277bd729865fae38cc2d99a2f4fda75c0dd24684a1ddccd8f18c66b 
+2b2ea8617769dffd83e83f8465876e8457b276168201d115f0dfec66eef72a75 
+502fbf5244bb0ff442dacd5d4ba91ccb18966b30a4deffc6954eb5a6c94e6185 
+af1c7035679dcb30d3348a2a8cdf01796b212fe842cb27724d40f77a6a06899b 
+b328275f0e0781e0387bda4205fe30084d1ab20543134d3ecaddbdfc32a977e9 
+e0786cd96c7fb1619f13087296005293f516ca70e625b1be90fe551f5d520709 
+f915cd0e1d1cf4ee854def9590ffe45927bbce4e4d2e3100ef76f41f0b50857f 
+c30d441720c7f51c3c5bb56bcb48bc42f0447a417649dce3575156734a28dbc0 
+0826c0f041d4054ec34ea89a319be7a8d362b46a2a326b3691ed4b6d4658ca90 
+ 
+Total reclaimed space: 2.017MB 
+➜  ProxmoxVE git:(main) echo "=== Removing build cache ===" && docker builder pr 
+une -f 
+=== Removing build cache === 
+ID						RECLAIMABLE	SIZE		LAST ACCESSED 
+0rn1qb8cdg713zxv2wxlcyopn*              	true 		262.1kB   	About a minute ago 
+o6gogot8k296uxnp8w9lcxjdz               	true 	12.29kB   	40 minutes ago 
+twc531yl77seqjy9h823bgycn*              	true 	4.096kB   	15 minutes ago 
+5edx8dd22fymljoqyo87ywmws               	true 	553kB     	15 minutes ago 
+m13ip7s0yei9xk48x3s35549o*              	true 	8.192kB   	About a minute ago 
+qci1yva5s686dzpaqp6v9aptw*              	true 	727.4MB   	40 minutes ago 
+rc0z03b1so1ow751agslw0f0n*              	true 	4.096kB   	40 minutes ago 
+34xmrjeogey0rxtfb0y0kxfb4*              	true 	8.192kB   	15 minutes ago 
+yr6lmfcof7zmv9mu1ki2mszgc               	true 	326.2kB   	41 minutes ago 
+vtod52vlk9zl7ze953yj92q1c*              	true 	548.9kB   	15 minutes ago 
+vh0cwbpad5qpbtj6lwobohrne               	true 	303kB     	46 hours ago 
+t3udr81xiz27jxj8mca7z0oms*              	true 	8.192kB   	40 minutes ago 
+4wg72p0n75kde449ju0qz1njy*              	true 	4.096kB   	About a minute ago 
+mci7mekocxpltcvrdu6mtggq7*              	true 	8.192kB   	15 minutes ago 
+g3n8m9mr4czpip3nng3brc0hd               	true 	140.5MB   	15 minutes ago 
+xnt3f4nk88gfi9bh97x56pijy               	true 	8.192kB   	40 minutes ago 
+vel6n1g2j4menuqx53xe9y1wt               	true 	233.5kB   	15 minutes ago 
+vt6xpzjg01jbtygu2izhgcp1f               	true 	309.2MB   	Less than a second ago 
+vo9vrm13kdnkvt030le7rss42               	true 	8.192kB   	15 minutes ago 
+iferm24pw4f2zw6q5ow3kp8jt               	true 	12.6kB    	Less than a second ago 
+8nlh9imy9z02zyn1ywdj1t74b               	true 	446B      	15 minutes ago 
+tqt9ibnf4ddqdm0tdcb1jl4m4               	true 	375.4MB   	Less than a second ago 
+7ht76g3ysznde1999meq67hyt               	true 	1.261MB   	15 minutes ago 
+prmget3cwhi7bmi00jx5eevzw               	true 	50.25MB   	15 minutes ago 
+Total:	1.606GB 
+➜  ProxmoxVE git:(main) echo "=== Final status check ===" && docker system df 
+=== Final status check === 
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE 
+Images          57        13        42.58GB   29.91GB (70%) 
+Containers      15        14        432.2MB   4.096kB (0%) 
+Local Volumes   17        6         1.54GB    1.35GB (87%) 
+Build Cache     83        0         29.5MB    29.5MB 
+➜  ProxmoxVE git:(main) echo "=== Current running containers with descriptive na 
+mes ===" && docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}" 
+=== Current running containers with descriptive names === 
+NAMES                                                     IMAGE                                          STATUS 
+cyberzapend-frontend-1                                    cyberzapend-frontend                           Up 2 minutes 
+cyberzapend-backend-1                                     cyberzapend-backend                            Up 2 minutes 
+cyberzapend-postgres-1                                    postgres:16                                    Up 2 minutes (healthy) 
+devfolder-n8n-1                                           n8nio/n8n                                      Up 2 hours 
+devfolder-postgres-1                                      postgres:16                                    Up 2 hours 
+firecrawl-mcp-server-1                                    firecrawl-mcp-server                           Up 3 hours 
+firecrawl-worker-1                                        ghcr.io/mendableai/firecrawl                   Up 4 hours 
+firecrawl-supabase-studio-1                               supabase/studio:latest                         Up 4 hours (unhealthy) 
+firecrawl-api-1                                           ghcr.io/mendableai/firecrawl                   Up 4 hours 
+firecrawl-supabase-db-1                                   postgres:15-alpine                             Up 4 hours (healthy) 
+firecrawl-redis-1                                         redis:alpine                                   Up 4 hours 
+firecrawl-playwright-service-1                            ghcr.io/mendableai/playwright-service:latest   Up 4 hours 
+docker_labs-ai-tools-for-devs-desktop-extension-service   mcp/docker:0.0.17                              Up 5 hours 
+telkombe_remote-docker-desktop-extension-service          telkombe/remote-docker:1.0.41                  Up 5 hours 
+➜  ProxmoxVE git:(main) echo "=== Optional: Remove dangling images (images with  
+<none> tags) ===" && docker images --filter "dangling=true" --quiet | wc -l 
+=== Optional: Remove dangling images (images with <none> tags) === 
+       0 
+➜  ProxmoxVE git:(main) pwd 
+/Users/jacques/DevFolder/ProxmoxVE 
+➜  ProxmoxVE git:(main) cd .. 
+➜  DevFolder git:(main) ✗ ssh root@192.168.0.200 
+The authenticity of host '192.168.0.200 (192.168.0.200)' can't be established. 
+ED25519 key fingerprint is SHA256:QrbK6oCYzXyMtdesXsboV/V1tkKuNUOLf2UzQnvB3W0. 
+This key is not known by any other names. 
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes 
+Warning: Permanently added '192.168.0.200' (ED25519) to the list of known hosts. 
+root@192.168.0.200's password:  
+Linux pve1 6.8.12-11-pve #1 SMP PREEMPT_DYNAMIC PMX 6.8.12-11 (2025-05-22T09:39Z) x86_64 
+ 
+The programs included with the Debian GNU/Linux system are free software; 
+the exact distribution terms for each program are described in the 
+individual files in /usr/share/doc/*/copyright. 
+ 
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent 
+permitted by applicable law. 
+Last login: Sat Jun 21 10:25:00 2025 
+root@pve1:~# pct list 
+VMID       Status     Lock         Name                 
+100        running                 CT-30-100-DockerHostMain 
+101        running                 WhatsappMCP          
+104        stopped                 alpine-zigbee2mqtt   
+110        running                 PiHole               
+root@pve1:~# pct config 900 2>/dev/null || echo "Container 900 does not exist" 
+Container 900 does not exist 
+root@pve1:~# ^C 
+root@pve1:~# ssh rootpveam available --section system | grep -E "(ubuntu|debian)" | head -10 
+ssh: Could not resolve hostname rootpveam: Name or service not known 
+root@pve1:~# ssh root@192.168.0.200 
+The authenticity of host '192.168.0.200 (192.168.0.200)' can't be established. 
+ED25519 key fingerprint is SHA256:QrbK6oCYzXyMtdesXsboV/V1tkKuNUOLf2UzQnvB3W0. 
+This key is not known by any other names. 
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes 
+Warning: Permanently added '192.168.0.200' (ED25519) to the list of known hosts. 
+Linux pve1 6.8.12-11-pve #1 SMP PREEMPT_DYNAMIC PMX 6.8.12-11 (2025-05-22T09:39Z) x86_64 
+ 
+The programs included with the Debian GNU/Linux system are free software; 
+the exact distribution terms for each program are described in the 
+individual files in /usr/share/doc/*/copyright. 
+ 
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent 
+permitted by applicable law. 
+Last login: Sat Jun 21 12:43:59 2025 from 192.168.0.84 
+root@pve1:~# exit 
+logout 
+Connection to 192.168.0.200 closed. 
+root@pve1:~# ssh root@192.168.0.201 
+root@192.168.0.201's password:  
+wain@321 
+^C 
+root@pve1:~# ssh root@192.168.0.201 
+root@192.168.0.201's password:  
+Linux prox-nuc 6.8.12-5-pve #1 SMP PREEMPT_DYNAMIC PMX 6.8.12-5 (2024-12-03T10:26Z) x86_64 
+ 
+The programs included with the Debian GNU/Linux system are free software; 
+the exact distribution terms for each program are described in the 
+individual files in /usr/share/doc/*/copyright. 
+ 
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent 
+permitted by applicable law. 
+Last login: Sat Jun 21 12:41:59 2025 
+root@prox-nuc:~# pct list 
+VMID       Status     Lock         Name                 
+100        running                 DOCKER               
+101        running                 Go2RTC-192.168.0.221 
+102        running                 nextcloudpi          
+103        running                 docker               
+104        stopped                 WaterReadings        
+106        running                 Dart-MCP-Server      
+107        stopped                 alpine-zigbee2mqtt   
+800        stopped                 dockerhost-template  
+900        running                 dockerhost-template  
+root@prox-nuc:~# pveam available --section system | grep -E "(ubuntu|debian)" | head -10 
+system          debian-11-standard_11.7-1_amd64.tar.zst 
+system          debian-12-standard_12.7-1_amd64.tar.zst 
+system          ubuntu-20.04-standard_20.04-1_amd64.tar.gz 
+system          ubuntu-22.04-standard_22.04-1_amd64.tar.zst 
+system          ubuntu-24.04-standard_24.04-2_amd64.tar.zst 
+system          ubuntu-24.10-standard_24.10-1_amd64.tar.zst 
+system          ubuntu-25.04-standard_25.04-1.1_amd64.tar.zst 
+  GNU nano 6.2         /usr/local/bin/docker-template-info.sh *                  
+#!/bin/bash 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+root@dockerhost-template:~# cat > /usr/local/bin/docker-template-info.sh 
+#!/bin/bash 
+# Grab version info 
+OS_VERSION=$(lsb_release -ds) 
+KERNEL_VERSION=$(uname -r) 
+DOCKER_VERSION=$(docker --version | cut -d',' -f1) 
+COMPOSE_VERSION=$(docker compose version | head -n1) 
+HOSTNAME=$(hostname) 
+IP_ADDRESS=$(hostname -I | awk '{print $1}') 
+DATE_CREATED=$(date +"%Y-%m-%d") 
+OUTPUT_FILE="/root/dockerhost-template.md" 
+cat > "$OUTPUT_FILE" << 'MDEOF' 
+^C 
+ 
+root@dockerhost-template:~# rm -f /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo '#!/bin/bash' > /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo 'echo "Creating Docker template info..."' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# chmod +x /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# /usr/local/bin/docker-template-info.sh 
+Creating Docker template info... 
+root@dockerhost-template:~# which vi nano joe 
+/bin/vi 
+/bin/nano 
+root@dockerhost-template:~# cp /usr/local/bin/docker-template-info.sh /usr/local/bin/docker-template-info.sh.bak 
+root@dockerhost-template:~# rm /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo '#!/bin/bash' > /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo 'echo "Docker Template Info Generator"' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo 'DATE_CREATED=$(date +"%Y-%m-%d")' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo 'echo "# Docker Host Template" > /root/dockerhost-template.md' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo 'echo "Template created on: $DATE_CREATED" >> /root/dockerhost-template.md' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo 'echo "Template info created successfully!"' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# chmod +x /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# /usr/local/bin/docker-template-info.sh 
+Docker Template Info Generator 
+Template info created successfully! 
+root@dockerhost-template:~# cat /root/dockerhost-template.md 
+# Docker Host Template 
+Template created on: 2025-06-21 
+root@dockerhost-template:~# cat > /etc/systemd/system/docker-template-info.service << EOF 
+> [Unit] 
+> Description=Docker Template Info Generator 
+> After=network.target 
+>  
+> [Service] 
+> Type=oneshot 
+> ExecStart=/usr/local/bin/docker-template-info.sh 
+> RemainAfterExit=yes 
+>  
+> [Install] 
+> WantedBy=multi-user.target 
+> EOF 
+root@dockerhost-template:~# systemctl enable docker-template-info.service 
+Created symlink /etc/systemd/system/multi-user.target.wants/docker-template-info.service -> /etc/systemd/system/docker-template-info.service. 
+root@dockerhost-template:~# systemctl start docker-template-info.service 
+root@dockerhost-template:~# systemctl status docker-template-info.service 
+* docker-template-info.service - Docker Template Info Generator 
+     Loaded: loaded (/etc/systemd/system/docker-template-info.service; enabled;> 
+     Active: active (exited) since Sat 2025-06-21 12:54:42 SAST; 8s ago 
+    Process: 678 ExecStart=/usr/local/bin/docker-template-info.sh (code=exited,> 
+   Main PID: 678 (code=exited, status=0/SUCCESS) 
+        CPU: 10ms 
+ 
+Jun 21 12:54:42 dockerhost-template systemd[1]: Starting Docker Template Info G> 
+Jun 21 12:54:42 dockerhost-template docker-template-info.sh[678]: Docker Templa> 
+Jun 21 12:54:42 dockerhost-template docker-template-info.sh[678]: Template info> 
+Jun 21 12:54:42 dockerhost-template systemd[1]: Finished Docker Template Info G> 
+root@dockerhost-template:~#  
+root@dockerhost-template:~# echo 'OS_VERSION=$(lsb_release -ds 2>/dev/null || echo "Unknown OS")' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo 'echo "OS: $OS_VERSION" >> /root/dockerhost-template.md' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# /usr/local/bin/docker-template-info.sh 
+Docker Template Info Generator 
+Template info created successfully! 
+root@dockerhost-template:~# cat /root/dockerhost-template.md 
+# Docker Host Template 
+Template created on: 2025-06-21 
+OS: Ubuntu 22.04.5 LTS 
+root@dockerhost-template:~# mkdir -p /etc/motd.d 
+root@dockerhost-template:~# echo 'mkdir -p /etc/motd.d' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# echo 'echo "Docker Host Template Ready!" > /etc/motd.d/dockerinfo' >> /usr/local/bin/docker-template-info.sh 
+root@dockerhost-template:~# exit 
+exit 
+root@prox-nuc:~# pct restart 900 
+ERROR: unknown command 'pct restart' 
+USAGE: pct <COMMAND> [ARGS] [OPTIONS] 
+ 
+       pct clone <vmid> <newid> [OPTIONS] 
+       pct create <vmid> <ostemplate> [OPTIONS] 
+       pct destroy <vmid> [OPTIONS] 
+       pct list  
+       pct migrate <vmid> <target> [OPTIONS] 
+       pct move-volume <vmid> <volume> [<storage>] [<target-vmid>] [<target-volume>] [OPTIONS] 
+       pct pending <vmid> 
+       pct resize <vmid> <disk> <size> [OPTIONS] 
+       pct restore <vmid> <ostemplate> [OPTIONS] 
+       pct template <vmid> 
+ 
+       pct config <vmid> [OPTIONS] 
+       pct set <vmid> [OPTIONS] 
+ 
+       pct delsnapshot <vmid> <snapname> [OPTIONS] 
+       pct listsnapshot <vmid> 
+       pct rollback <vmid> <snapname> [OPTIONS] 
+       pct snapshot <vmid> <snapname> [OPTIONS] 
+ 
+       pct reboot <vmid> [OPTIONS] 
+       pct resume <vmid> 
+       pct shutdown <vmid> [OPTIONS] 
+       pct start <vmid> [OPTIONS] 
+       pct stop <vmid> [OPTIONS] 
+       pct suspend <vmid> 
+ 
+       pct console <vmid> [OPTIONS] 
+       pct cpusets  
+       pct df <vmid> 
+       pct enter <vmid> [OPTIONS] 
+       pct exec <vmid> [<extra-args>] [OPTIONS] 
+       pct fsck <vmid> [OPTIONS] 
+       pct fstrim <vmid> [OPTIONS] 
+       pct mount <vmid> 
+       pct pull <vmid> <path> <destination> [OPTIONS] 
+       pct push <vmid> <file> <destination> [OPTIONS] 
+       pct remote-migrate <vmid> [<target-vmid>] <target-endpoint> --target-bridge <string> --target-storage <string> [OPTIONS] 
+       pct rescan  [OPTIONS] 
+       pct status <vmid> [OPTIONS] 
+       pct unlock <vmid> 
+       pct unmount <vmid> 
+ 
+       pct help [<extra-args>] [OPTIONS] 
+root@prox-nuc:~# pct stop 900 
+root@prox-nuc:~# pct start 900 
+root@prox-nuc:~# pct enter 900 
+root@dockerhost-template:~# cat /root/dockerhost-template.md 
+# Docker Host Template 
+Template created on: 2025-06-21 
+OS: Ubuntu 22.04.5 LTS 
+root@dockerhost-template:~# systemctl status docker-template-info.service 
+* docker-template-info.service - Docker Template Info Generator 
+     Loaded: loaded (/etc/systemd/system/docker-template-info.service; enabled;> 
+     Active: active (exited) since Sat 2025-06-21 12:57:21 SAST; 38s ago 
+    Process: 115 ExecStart=/usr/local/bin/docker-template-info.sh (code=exited,> 
+   Main PID: 115 (code=exited, status=0/SUCCESS) 
+        CPU: 51ms 
+ 
+Jun 21 12:57:21 dockerhost-template systemd[1]: Starting Docker Template Info G> 
+Jun 21 12:57:21 dockerhost-template docker-template-info.sh[115]: Docker Templa> 
+Jun 21 12:57:21 dockerhost-template docker-template-info.sh[115]: Template info> 
+Jun 21 12:57:21 dockerhost-template systemd[1]: Finished Docker Template Info G> 
+root@dockerhost-template:~#  
+root@dockerhost-template:~# cat /etc/motd.d/dockerinfo 
+Docker Host Template Ready! 
+root@dockerhost-template:~# exit 
+exit 
+root@prox-nuc:~# pct console 900 
+ 
+Connected to tty 1 
+Type <Ctrl+a q> to exit the console, <Ctrl+a Ctrl+a> to enter Ctrl+a itself 
+ 
+Ubuntu 22.04.5 LTS dockerhost-template tty1 
+ 
+dockerhost-template login: root 
+Password:  
+ 
+Login incorrect 
+dockerhost-template login: q 
+Password:  
+Login timed out after 60 seconds. 
+ 
+Ubuntu 22.04.5 LTS dockerhost-template tty1 
+ 
+dockerhost-template login:  

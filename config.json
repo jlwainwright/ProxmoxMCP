@@ -7,8 +7,8 @@
     },
     "auth": {
         "user": "root@pam",
-        "token_name": "mcp-token",
-        "token_value": "placeholder-token-value"
+        "token_name": "MCP-Server",
+        "token_value": "b46704fb-2694-4bfb-98dd-b0232d5c3c08"
     },
     "logging": {
         "level": "DEBUG",

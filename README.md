@@ -2,7 +2,7 @@
 
 ![ProxmoxMCP](https://github.com/user-attachments/assets/e32ab79f-be8a-420c-ab2d-475612150534)
 
-A Python-based Model Context Protocol (MCP) server for interacting with Proxmox hypervisors, providing a clean interface for managing nodes, VMs, and containers.
+A Python-based Model Context Protocol (MCP) server for interacting with Proxmox hypervisors, providing a clean interface for managing nodes, VMs, and containers. Now with **OAuth 2.1 authorization** support!
 
 ## 🏗️ Built With
 
@@ -10,23 +10,28 @@ A Python-based Model Context Protocol (MCP) server for interacting with Proxmox 
 - [Proxmoxer](https://github.com/proxmoxer/proxmoxer) - Python wrapper for Proxmox API
 - [MCP SDK](https://github.com/modelcontextprotocol/sdk) - Model Context Protocol SDK
 - [Pydantic](https://docs.pydantic.dev/) - Data validation using Python type annotations
+- [FastAPI](https://fastapi.tiangolo.com/) - Modern web framework for HTTP transport
+- [Authlib](https://authlib.org/) - OAuth 2.1 implementation
+- [python-jose](https://python-jose.readthedocs.io/) - JWT token handling
 
 ## ✨ Features
 
 - 🤖 Full integration with Cline
 - 🛠️ Built with the official MCP SDK
 - 🔒 Secure token-based authentication with Proxmox
+- 🛡️ **NEW: OAuth 2.1 authorization with scope-based permissions**
+- 🌐 **NEW: Dual transport support (stdio/HTTP)**
 - 🖥️ Tools for managing nodes and VMs
 - 💻 VM console command execution
 - 📝 Configurable logging system
 - ✅ Type-safe implementation with Pydantic
 - 🎨 Rich output formatting with customizable themes
+- 🔐 **NEW: JWT-based access tokens with PKCE support**
+- 🎯 **NEW: Granular scope-based access control**
 
-
+## 📹 Demo Video
 
 https://github.com/user-attachments/assets/1b5f42f7-85d5-4918-aca4-d38413b0e82b
-
-
 
 ## 📦 Installation
 
@@ -37,6 +42,7 @@ https://github.com/user-attachments/assets/1b5f42f7-85d5-4918-aca4-d38413b0e82b
 - Access to a Proxmox server with API token credentials
 
 Before starting, ensure you have:
+
 - [ ] Proxmox server hostname or IP
 - [ ] Proxmox API token (see [API Token Setup](#proxmox-api-token-setup))
 - [ ] UV installed (`pip install uv`)
@@ -44,6 +50,7 @@ Before starting, ensure you have:
 ### Option 1: Quick Install (Recommended)
 
 1. Clone and set up environment:
+
    ```bash
    # Clone repository
    cd ~/Documents/Cline/MCP  # For Cline users
@@ -55,18 +62,20 @@ Before starting, ensure you have:
 
    # Create and activate virtual environment
    uv venv
-   source .venv/bin/activate  # Linux/macOS
+   source venv/bin/activate  # Linux/macOS
    # OR
-   .\.venv\Scripts\Activate.ps1  # Windows
+   .\venv\Scripts\Activate.ps1  # Windows
    ```
 
 2. Install dependencies:
+
    ```bash
    # Install with development dependencies
    uv pip install -e ".[dev]"
    ```
 
 3. Create configuration:
+
    ```bash
    # Create config directory and copy template
    mkdir -p proxmox-config
@@ -120,7 +129,111 @@ Before starting, ensure you have:
    - A successful connection to your Proxmox server
    - Or a connection error (if Proxmox details are incorrect)
 
+   **Note:** Make sure to activate your virtual environment and run from the `src` directory:
+   ```bash
+   source venv/bin/activate
+   export PROXMOX_MCP_CONFIG="$(pwd)/proxmox-config/config.json"
+   cd src
+   python -m proxmox_mcp.server
+   ```
+
 ## ⚙️ Configuration
+
+The server supports two transport modes and optional OAuth 2.1 authorization:
+
+### Transport Modes
+
+#### Stdio Mode (Default)
+- **Use case**: Direct integration with MCP clients (Cline, Claude Code CLI)
+- **Security**: Basic Proxmox token authentication
+- **Setup**: Minimal configuration required
+
+#### HTTP Mode 
+- **Use case**: Web applications, REST API access, OAuth-based integrations
+- **Security**: Optional OAuth 2.1 with JWT tokens and scope-based permissions
+- **Setup**: HTTP server on configurable host/port
+
+### Configuration Examples
+
+#### Basic Stdio Configuration (`config-stdio.json`)
+```json
+{
+  "proxmox": {
+    "host": "192.168.1.100",
+    "port": 8006,
+    "verify_ssl": false,
+    "service": "PVE"
+  },
+  "auth": {
+    "user": "root@pam",
+    "token_name": "mcp-token",
+    "token_value": "your-token-secret-here"
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": null
+  },
+  "transport": {
+    "type": "stdio"
+  },
+  "authorization": {
+    "enabled": false
+  }
+}
+```
+
+#### HTTP with OAuth Configuration (`config-http-auth.json`)
+```json
+{
+  "proxmox": {
+    "host": "192.168.1.100",
+    "port": 8006,
+    "verify_ssl": false,
+    "service": "PVE"
+  },
+  "auth": {
+    "user": "root@pam",
+    "token_name": "mcp-token",
+    "token_value": "your-token-secret-here"
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "proxmox_mcp.log"
+  },
+  "transport": {
+    "type": "http",
+    "host": "0.0.0.0",
+    "port": 8080
+  },
+  "authorization": {
+    "enabled": true,
+    "issuer": "http://localhost:8080",
+    "audience": "proxmox-mcp-server",
+    "scopes": [
+      "proxmox:nodes:read",
+      "proxmox:vms:read",
+      "proxmox:vms:execute",
+      "proxmox:storage:read",
+      "proxmox:cluster:read"
+    ],
+    "token_expiry": 3600,
+    "dynamic_client_registration": true,
+    "secret_key": "your-secret-key-for-jwt-signing-change-this-in-production"
+  }
+}
+```
+
+### OAuth 2.1 Scopes
+
+When authorization is enabled, the following scopes control access:
+
+- 🖥️ `proxmox:nodes:read` - List and view node information
+- 🗃️ `proxmox:vms:read` - List and view VM information  
+- ⚡ `proxmox:vms:execute` - Execute commands in VMs
+- 💾 `proxmox:storage:read` - View storage information
+- ⚙️ `proxmox:cluster:read` - View cluster status
 
 ### Proxmox API Token Setup
 1. Log into your Proxmox web interface
@@ -134,17 +247,60 @@ Before starting, ensure you have:
 
 ## 🚀 Running the Server
 
-### Development Mode
-For testing and development:
+### Stdio Mode (Default)
+For direct MCP client integration:
 ```bash
 # Activate virtual environment first
-source .venv/bin/activate  # Linux/macOS
+source venv/bin/activate  # Linux/macOS
 # OR
-.\.venv\Scripts\Activate.ps1  # Windows
+.\venv\Scripts\Activate.ps1  # Windows
 
-# Run the server
+# Set configuration and run
+export PROXMOX_MCP_CONFIG="config-stdio.json"
+cd src
 python -m proxmox_mcp.server
 ```
+
+### HTTP Mode with OAuth
+For web applications and OAuth-secured access:
+```bash
+# Activate virtual environment first
+source venv/bin/activate  # Linux/macOS
+
+# Set configuration and run HTTP server
+export PROXMOX_MCP_CONFIG="config-http-auth.json"
+cd src
+python -m proxmox_mcp.server
+
+# Server will be available at http://localhost:8080
+# OAuth endpoints:
+# - Authorization: http://localhost:8080/authorize
+# - Token: http://localhost:8080/token
+# - Metadata: http://localhost:8080/.well-known/oauth-authorization-server
+# - MCP Tools: http://localhost:8080/mcp/tools
+```
+
+### OAuth Authorization Flow
+
+1. **Get authorization code**:
+   ```
+   GET /authorize?response_type=code&client_id=proxmox-mcp-client&redirect_uri=http://localhost:3000/callback&scope=proxmox:nodes:read&code_challenge=CHALLENGE&code_challenge_method=S256
+   ```
+
+2. **Exchange for access token**:
+   ```bash
+   curl -X POST http://localhost:8080/token \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=authorization_code&code=AUTH_CODE&redirect_uri=http://localhost:3000/callback&client_id=proxmox-mcp-client&code_verifier=VERIFIER"
+   ```
+
+3. **Use access token**:
+   ```bash
+   curl -X POST http://localhost:8080/mcp/tools/call \
+     -H "Authorization: Bearer ACCESS_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"tool": "get_nodes", "parameters": {}}'
+   ```
 
 ### Cline Desktop Integration
 
@@ -349,6 +505,30 @@ After activating your virtual environment:
 - Type checking: `mypy .`
 - Lint: `ruff .`
 
+## 🔐 Security & Authorization
+
+### Production Security Checklist
+
+For production deployments with OAuth authorization:
+
+- ✅ **Set a strong secret key** for JWT signing
+- ✅ **Use HTTPS** for all OAuth endpoints  
+- ✅ **Configure appropriate CORS** origins
+- ✅ **Use secure redirect URIs**
+- ✅ **Monitor and log** authorization events
+- ✅ **Rotate tokens** regularly
+- ✅ **Review scope permissions** for least privilege
+
+### Default Test Client
+
+A default client is pre-registered for testing:
+- **Client ID**: `proxmox-mcp-client`
+- **Client Type**: Public (no secret required)
+- **Redirect URIs**: `http://localhost:3000/callback`
+- **Allowed Scopes**: All configured scopes
+
+See [AUTHORIZATION.md](AUTHORIZATION.md) for complete security documentation.
+
 ## 📁 Project Structure
 
 ```
@@ -356,6 +536,11 @@ proxmox-mcp/
 ├── src/
 │   └── proxmox_mcp/
 │       ├── server.py          # Main MCP server implementation
+│       ├── auth/              # OAuth 2.1 authorization module
+│       │   ├── models.py      # OAuth data models
+│       │   ├── middleware.py  # Token validation middleware
+│       │   ├── server.py      # Authorization server
+│       │   └── exceptions.py  # Auth-specific exceptions
 │       ├── config/            # Configuration handling
 │       ├── core/              # Core functionality
 │       ├── formatting/        # Output formatting and themes
@@ -363,8 +548,9 @@ proxmox-mcp/
 │       │   └── console/       # VM console operations
 │       └── utils/             # Utilities (auth, logging)
 ├── tests/                     # Test suite
-├── proxmox-config/
-│   └── config.example.json    # Configuration template
+├── config-stdio.json         # Stdio mode configuration example
+├── config-http-auth.json     # HTTP with OAuth configuration example
+├── AUTHORIZATION.md           # Complete authorization documentation
 ├── pyproject.toml            # Project metadata and dependencies
 └── LICENSE                   # MIT License
 ```

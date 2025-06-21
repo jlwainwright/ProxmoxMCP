@@ -5,6 +5,8 @@ This module defines Pydantic models for configuration validation:
 - Proxmox connection settings
 - Authentication credentials
 - Logging configuration
+- Transport configuration (stdio/HTTP)
+- Authorization/OAuth configuration
 - Tool-specific parameter models
 
 The models provide:
@@ -13,7 +15,7 @@ The models provide:
 - Field descriptions
 - Required vs optional field handling
 """
-from typing import Optional, Annotated
+from typing import Optional, Annotated, List
 from pydantic import BaseModel, Field
 
 class NodeStatus(BaseModel):
@@ -68,13 +70,47 @@ class LoggingConfig(BaseModel):
     format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"  # Optional: Log format
     file: Optional[str] = None  # Optional: Log file path (default: None for console logging)
 
+class TransportConfig(BaseModel):
+    """Model for transport configuration.
+    
+    Defines the transport method for the MCP server.
+    - stdio: Standard input/output (default, lightweight)
+    - http: HTTP server (required for OAuth authorization)
+    """
+    type: str = "stdio"  # Transport type: "stdio" or "http"
+    host: str = "127.0.0.1"  # HTTP server host (only used for http transport)
+    port: int = 8080  # HTTP server port (only used for http transport)
+
+class AuthorizationConfig(BaseModel):
+    """Model for OAuth 2.1 authorization configuration.
+    
+    Defines settings for optional OAuth-based authorization.
+    When enabled, requires HTTP transport and provides secure
+    token-based access control for MCP tools.
+    """
+    enabled: bool = False  # Enable/disable authorization
+    issuer: Optional[str] = None  # OAuth issuer URL (required when enabled)
+    audience: str = "proxmox-mcp-server"  # Token audience validation
+    scopes: List[str] = [  # Available authorization scopes
+        "proxmox:nodes:read",
+        "proxmox:vms:read", 
+        "proxmox:vms:execute",
+        "proxmox:storage:read",
+        "proxmox:cluster:read"
+    ]
+    token_expiry: int = 3600  # Access token expiry in seconds (1 hour)
+    dynamic_client_registration: bool = True  # Allow dynamic client registration
+    secret_key: Optional[str] = None  # JWT signing secret (generated if not provided)
+
 class Config(BaseModel):
     """Root configuration model.
     
     Combines all configuration models into a single validated
-    configuration object. All sections are required to ensure
-    proper server operation.
+    configuration object. Core sections are required, while
+    transport and authorization are optional with defaults.
     """
     proxmox: ProxmoxConfig  # Required: Proxmox connection settings
     auth: AuthConfig  # Required: Authentication credentials
     logging: LoggingConfig  # Required: Logging configuration
+    transport: TransportConfig = TransportConfig()  # Optional: Transport settings
+    authorization: AuthorizationConfig = AuthorizationConfig()  # Optional: OAuth settings

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(python test:*)",
+      "mcp__obsidian__list-available-vaults",
+      "mcp__dart__create_doc",
+      "WebFetch(domain:modelcontextprotocol.io)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}
