@@ -21,7 +21,8 @@
       "mcp__proxmox-mcp__get_storage",
       "mcp__proxmox-mcp__get_node_status",
       "Bash(git remote set-url:*)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }
