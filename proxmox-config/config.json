@@ -1,0 +1,18 @@
+{
+    "proxmox": {
+        "host": "192.168.0.200",
+        "port": 8006,
+        "verify_ssl": false,
+        "service": "PVE1"
+    },
+    "auth": {
+        "user": "root@pam",
+        "token_name": "root@pam!MCP-Server",
+        "token_value": "b46704fb-2694-4bfb-98dd-b0232d5c3c08"
+    },
+    "logging": {
+        "level": "DEBUG",
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "file": "proxmox_mcp.log"
+    }
+}
