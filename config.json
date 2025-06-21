@@ -6,9 +6,9 @@
         "service": "PVE"
     },
     "auth": {
-        "user": "root@pam",
-        "token_name": "MCP-Server",
-        "token_value": "b46704fb-2694-4bfb-98dd-b0232d5c3c08"
+        "user": "mcp@pve",
+        "token_name": "mcp-token",
+        "token_value": "3adfdcb2-f6c2-460a-b896-af524c408e8a"
     },
     "logging": {
         "level": "DEBUG",

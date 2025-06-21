@@ -9,7 +9,17 @@
       "mcp__obsidian__list-available-vaults",
       "mcp__dart__create_doc",
       "WebFetch(domain:modelcontextprotocol.io)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(find:*)",
+      "mcp__proxmox-mcp__get_nodes",
+      "mcp__proxmox-mcp__get_cluster_status",
+      "mcp__proxmox-mcp__get_vms",
+      "mcp__proxmox-mcp__get_storage",
+      "mcp__proxmox-mcp__get_node_status"
     ],
     "deny": []
   }

@@ -302,60 +302,80 @@ python -m proxmox_mcp.server
      -d '{"tool": "get_nodes", "parameters": {}}'
    ```
 
-### Cline Desktop Integration
+### Claude Desktop Integration
 
-For Cline users, add this configuration to your MCP settings file (typically at `~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`):
+To add Proxmox MCP to Claude Desktop, update your configuration file:
 
-```json
-{
-    "mcpServers": {
-        "github.com/canvrno/ProxmoxMCP": {
-            "command": "/absolute/path/to/ProxmoxMCP/.venv/bin/python",
-            "args": ["-m", "proxmox_mcp.server"],
-            "cwd": "/absolute/path/to/ProxmoxMCP",
-            "env": {
-                "PYTHONPATH": "/absolute/path/to/ProxmoxMCP/src",
-                "PROXMOX_MCP_CONFIG": "/absolute/path/to/ProxmoxMCP/proxmox-config/config.json",
-                "PROXMOX_HOST": "your-proxmox-host",
-                "PROXMOX_USER": "username@pve",
-                "PROXMOX_TOKEN_NAME": "token-name",
-                "PROXMOX_TOKEN_VALUE": "token-value",
-                "PROXMOX_PORT": "8006",
-                "PROXMOX_VERIFY_SSL": "false",
-                "PROXMOX_SERVICE": "PVE",
-                "LOG_LEVEL": "DEBUG"
-            },
-            "disabled": false,
-            "autoApprove": []
+**Configuration File Location:**
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+**Generate Your Configuration:**
+```bash
+# Run this from your ProxmoxMCP directory to get the correct paths
+python3 -c "
+import os
+import json
+
+config = {
+    'mcpServers': {
+        'proxmox-mcp': {
+            'command': os.path.abspath('venv/bin/python'),
+            'args': ['-m', 'proxmox_mcp.server'],
+            'cwd': os.path.abspath('src'),
+            'env': {
+                'PROXMOX_MCP_CONFIG': os.path.abspath('config-stdio.json')
+            }
         }
     }
 }
+
+print('Add this to your Claude Desktop configuration:')
+print(json.dumps(config, indent=2))
+"
 ```
 
-To help generate the correct paths, you can use this command:
-```bash
-# This will print the MCP settings with your absolute paths filled in
-python -c "import os; print(f'''{{
-    \"mcpServers\": {{
-        \"github.com/canvrno/ProxmoxMCP\": {{
-            \"command\": \"{os.path.abspath('.venv/bin/python')}\",
-            \"args\": [\"-m\", \"proxmox_mcp.server\"],
-            \"cwd\": \"{os.getcwd()}\",
-            \"env\": {{
-                \"PYTHONPATH\": \"{os.path.abspath('src')}\",
-                \"PROXMOX_MCP_CONFIG\": \"{os.path.abspath('proxmox-config/config.json')}\",
-                ...
-            }}
-        }}
-    }}
-}}''')"
+**Example Configuration:**
+```json
+{
+  "mcpServers": {
+    "proxmox-mcp": {
+      "command": "/Users/your-username/ProxmoxMCP/venv/bin/python",
+      "args": ["-m", "proxmox_mcp.server"],
+      "cwd": "/Users/your-username/ProxmoxMCP/src",
+      "env": {
+        "PROXMOX_MCP_CONFIG": "/Users/your-username/ProxmoxMCP/config-stdio.json"
+      }
+    }
+  }
+}
 ```
 
-Important:
-- All paths must be absolute
-- The Python interpreter must be from your virtual environment
-- The PYTHONPATH must point to the src directory
-- Restart VSCode after updating MCP settings
+**Important Setup Notes:**
+- ✅ Use `config-stdio.json` (not `proxmox-config/config.json`)
+- ✅ Ensure all paths are absolute
+- ✅ Set logging level to `"ERROR"` to reduce noise in Claude logs
+- ✅ Restart Claude Desktop after configuration changes
+
+### Cline/VS Code Integration
+
+For Cline users, add to your MCP settings file (`~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`):
+
+```json
+{
+  "mcpServers": {
+    "proxmox-mcp": {
+      "command": "/absolute/path/to/ProxmoxMCP/venv/bin/python",
+      "args": ["-m", "proxmox_mcp.server"],
+      "cwd": "/absolute/path/to/ProxmoxMCP/src",
+      "env": {
+        "PROXMOX_MCP_CONFIG": "/absolute/path/to/ProxmoxMCP/config-stdio.json"
+      }
+    }
+  }
+}
+```
 
 # 🔧 Available Tools
 
@@ -504,6 +524,139 @@ After activating your virtual environment:
 - Format code: `black .`
 - Type checking: `mypy .`
 - Lint: `ruff .`
+
+## 🐛 Troubleshooting
+
+### Common Issues and Solutions
+
+#### 1. **Claude Desktop Connection Timeout**
+```
+ERROR - Failed to connect to Proxmox: HTTPSConnectionPool(...): Max retries exceeded
+```
+
+**Solutions:**
+- ✅ **Check Proxmox host**: Ensure the IP/hostname in `config-stdio.json` is correct
+- ✅ **Verify network access**: Try pinging your Proxmox server
+- ✅ **Check firewall**: Ensure port 8006 is accessible
+- ✅ **Test manually**: Run the connection test script below
+
+#### 2. **Authentication Errors**
+```
+401 Unauthorized: no such user
+```
+
+**Solutions:**
+- ✅ **Check token format**: Use only the token name (e.g., `"MCP-Server"`) not the full identifier
+- ✅ **Verify credentials**: Ensure token exists in Proxmox and has proper permissions
+- ✅ **Service name**: Must be `"PVE"` exactly (case-sensitive)
+
+#### 3. **JSON Parse Errors in Claude Desktop**
+```
+Unexpected token 'E', "Error: Fai"... is not valid JSON
+```
+
+**Solutions:**
+- ✅ **Set log level**: Use `"ERROR"` instead of `"DEBUG"` in logging configuration
+- ✅ **Fix connection**: Resolve underlying Proxmox connection issues first
+- ✅ **Restart Claude**: Restart Claude Desktop after config changes
+
+#### 4. **Module Not Found Errors**
+```
+ModuleNotFoundError: No module named 'proxmox_mcp'
+```
+
+**Solutions:**
+- ✅ **Activate venv**: Always use `source venv/bin/activate`
+- ✅ **Install dependencies**: Run `pip install -e .` in the project root
+- ✅ **Check paths**: Ensure `cwd` points to the `src` directory
+
+### Test Your Connection
+
+Run this script to verify your Proxmox connection before using with Claude:
+
+```bash
+source venv/bin/activate
+cd src
+python -c "
+import sys
+sys.path.insert(0, '.')
+from proxmox_mcp.config.loader import load_config
+from proxmox_mcp.core.proxmox import ProxmoxManager
+
+try:
+    config = load_config('../config-stdio.json')
+    print(f'Config loaded: {config.proxmox.host}:{config.proxmox.port}')
+    
+    manager = ProxmoxManager(config.proxmox, config.auth)
+    api = manager.get_api()
+    
+    version = api.version.get()
+    print(f'✅ Connected to Proxmox {version[\"version\"]}')
+    
+    nodes = api.nodes.get()
+    print(f'✅ Found {len(nodes)} nodes')
+    for node in nodes:
+        print(f'  - {node[\"node\"]}: {node[\"status\"]}')
+        
+except Exception as e:
+    print(f'❌ Connection failed: {e}')
+"
+```
+
+### Configuration Validation
+
+Ensure your `config-stdio.json` follows this format:
+
+```json
+{
+  "proxmox": {
+    "host": "192.168.0.200",     // Your Proxmox server IP
+    "port": 8006,                // Usually 8006
+    "verify_ssl": false,         // Set true if using valid SSL cert
+    "service": "PVE"             // Must be exactly "PVE"
+  },
+  "auth": {
+    "user": "root@pam",          // Your Proxmox user
+    "token_name": "MCP-Server",  // Token name only (not user!tokenname)
+    "token_value": "uuid-here"   // The actual token secret
+  },
+  "logging": {
+    "level": "ERROR",            // Use ERROR for Claude Desktop
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "proxmox_mcp.log"
+  },
+  "transport": {
+    "type": "stdio"
+  },
+  "authorization": {
+    "enabled": false
+  }
+}
+```
+
+### Success Indicators
+
+When everything is working correctly, you should see:
+
+#### ✅ **Connection Test Success**
+```bash
+Config loaded: 192.168.0.200:8006
+✅ Connected to Proxmox 8.4.1
+✅ Found 1 nodes
+  - pve1: online
+```
+
+#### ✅ **Claude Desktop Logs (Clean)**
+```
+[proxmox-mcp] [info] Initializing server...
+[proxmox-mcp] [info] Server started and connected successfully
+[proxmox-mcp] [info] Message from client: {"method":"initialize"...}
+```
+
+#### ✅ **Claude Desktop Usage**
+Ask Claude: *"Can you show me the Proxmox nodes in my cluster?"*
+
+Expected response with formatted node information showing status, uptime, CPU, memory, etc.
 
 ## 🔐 Security & Authorization
 
