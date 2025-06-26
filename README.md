@@ -302,30 +302,40 @@ python -m proxmox_mcp.server
      -d '{"tool": "get_nodes", "parameters": {}}'
    ```
 
-### Claude Desktop Integration
+## 🔌 Client Integration
 
-To add Proxmox MCP to Claude Desktop, update your configuration file:
+This section covers adding and removing the Proxmox MCP server across all supported MCP clients.
 
-**Configuration File Location:**
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%/Claude/claude_desktop_config.json`
-- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+### 📋 Quick Reference
 
-**Generate Your Configuration:**
+| Client | Config File Location | Transport | Notes |
+|--------|---------------------|-----------|-------|
+| **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)<br>`%APPDATA%/Claude/claude_desktop_config.json` (Windows)<br>`~/.config/Claude/claude_desktop_config.json` (Linux) | stdio | Restart required |
+| **Claude Code CLI** | `~/.claude/settings.local.json` | stdio | Built-in MCP support |
+| **Cline (VS Code)** | `~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` | stdio | VS Code extension |
+| **Cursor** | `~/Library/Application Support/Cursor/User/globalStorage/anysphere.cursor/config.json` (macOS)<br>`%APPDATA%/Cursor/User/globalStorage/anysphere.cursor/config.json` (Windows) | stdio | IDE integration |
+| **Windsurf** | `~/.windsurf/mcp_servers.json` | stdio | Codeium IDE |
+| **Continue** | `~/.continue/config.json` | stdio | VS Code extension |
+
+### 🖥️ Claude Desktop
+
+**Add Server:**
 ```bash
-# Run this from your ProxmoxMCP directory to get the correct paths
+# Generate configuration automatically
 python3 -c "
 import os
 import json
 
+# Get absolute paths for current directory
+base_path = os.getcwd()
 config = {
     'mcpServers': {
         'proxmox-mcp': {
-            'command': os.path.abspath('venv/bin/python'),
+            'command': os.path.join(base_path, 'venv/bin/python'),
             'args': ['-m', 'proxmox_mcp.server'],
-            'cwd': os.path.abspath('src'),
+            'cwd': os.path.join(base_path, 'src'),
             'env': {
-                'PROXMOX_MCP_CONFIG': os.path.abspath('config-stdio.json')
+                'PROXMOX_MCP_CONFIG': os.path.join(base_path, 'config.json')
             }
         }
     }
@@ -336,46 +346,254 @@ print(json.dumps(config, indent=2))
 "
 ```
 
-**Example Configuration:**
+**Manual Configuration:**
 ```json
 {
   "mcpServers": {
     "proxmox-mcp": {
-      "command": "/Users/your-username/ProxmoxMCP/venv/bin/python",
+      "command": "/path/to/ProxmoxMCP/venv/bin/python",
       "args": ["-m", "proxmox_mcp.server"],
-      "cwd": "/Users/your-username/ProxmoxMCP/src",
+      "cwd": "/path/to/ProxmoxMCP/src",
       "env": {
-        "PROXMOX_MCP_CONFIG": "/Users/your-username/ProxmoxMCP/config-stdio.json"
+        "PROXMOX_MCP_CONFIG": "/path/to/ProxmoxMCP/config.json"
       }
     }
   }
 }
 ```
 
-**Important Setup Notes:**
-- ✅ Use `config-stdio.json` (not `proxmox-config/config.json`)
-- ✅ Ensure all paths are absolute
-- ✅ Set logging level to `"ERROR"` to reduce noise in Claude logs
-- ✅ Restart Claude Desktop after configuration changes
+**Remove Server:**
+```bash
+# Remove the "proxmox-mcp" key from mcpServers object
+# Restart Claude Desktop
+```
 
-### Cline/VS Code Integration
+### 💻 Claude Code CLI
 
-For Cline users, add to your MCP settings file (`~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`):
-
-```json
+**Add Server:**
+```bash
+# Add to ~/.claude/settings.local.json
 {
   "mcpServers": {
     "proxmox-mcp": {
-      "command": "/absolute/path/to/ProxmoxMCP/venv/bin/python",
+      "command": "/path/to/ProxmoxMCP/venv/bin/python",
       "args": ["-m", "proxmox_mcp.server"],
-      "cwd": "/absolute/path/to/ProxmoxMCP/src",
+      "cwd": "/path/to/ProxmoxMCP/src",
       "env": {
-        "PROXMOX_MCP_CONFIG": "/absolute/path/to/ProxmoxMCP/config-stdio.json"
+        "PROXMOX_MCP_CONFIG": "/path/to/ProxmoxMCP/config.json"
       }
     }
   }
 }
 ```
+
+**Remove Server:**
+```bash
+# Remove the "proxmox-mcp" entry from mcpServers
+# Restart Claude Code CLI session
+```
+
+### 🤖 Cline (VS Code Extension)
+
+**Add Server:**
+```json
+{
+  "mcpServers": {
+    "proxmox-mcp": {
+      "command": "/path/to/ProxmoxMCP/venv/bin/python",
+      "args": ["-m", "proxmox_mcp.server"],
+      "cwd": "/path/to/ProxmoxMCP/src",
+      "env": {
+        "PROXMOX_MCP_CONFIG": "/path/to/ProxmoxMCP/config.json"
+      }
+    }
+  }
+}
+```
+
+**Configuration File Location:**
+- **macOS/Linux**: `~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
+- **Windows**: `%APPDATA%/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
+
+**Remove Server:**
+```bash
+# Remove the "proxmox-mcp" entry from the configuration file
+# Restart VS Code or reload the Cline extension
+```
+
+### 🎯 Cursor
+
+**Add Server:**
+```json
+{
+  "mcpServers": {
+    "proxmox-mcp": {
+      "command": "/path/to/ProxmoxMCP/venv/bin/python",
+      "args": ["-m", "proxmox_mcp.server"],
+      "cwd": "/path/to/ProxmoxMCP/src",
+      "env": {
+        "PROXMOX_MCP_CONFIG": "/path/to/ProxmoxMCP/config.json"
+      }
+    }
+  }
+}
+```
+
+**Configuration File Location:**
+- **macOS**: `~/Library/Application Support/Cursor/User/globalStorage/anysphere.cursor/config.json`
+- **Windows**: `%APPDATA%/Cursor/User/globalStorage/anysphere.cursor/config.json`
+- **Linux**: `~/.config/Cursor/User/globalStorage/anysphere.cursor/config.json`
+
+**Remove Server:**
+```bash
+# Remove the "proxmox-mcp" entry from mcpServers
+# Restart Cursor
+```
+
+### 🌊 Windsurf
+
+**Add Server:**
+```json
+{
+  "servers": {
+    "proxmox-mcp": {
+      "command": "/path/to/ProxmoxMCP/venv/bin/python",
+      "args": ["-m", "proxmox_mcp.server"],
+      "cwd": "/path/to/ProxmoxMCP/src",
+      "env": {
+        "PROXMOX_MCP_CONFIG": "/path/to/ProxmoxMCP/config.json"
+      }
+    }
+  }
+}
+```
+
+**Configuration File Location:**
+- **All Platforms**: `~/.windsurf/mcp_servers.json`
+
+**Remove Server:**
+```bash
+# Remove the "proxmox-mcp" entry from servers
+# Restart Windsurf
+```
+
+### ⏭️ Continue (VS Code Extension)
+
+**Add Server:**
+```json
+{
+  "mcpServers": {
+    "proxmox-mcp": {
+      "command": "/path/to/ProxmoxMCP/venv/bin/python",
+      "args": ["-m", "proxmox_mcp.server"],
+      "cwd": "/path/to/ProxmoxMCP/src",
+      "env": {
+        "PROXMOX_MCP_CONFIG": "/path/to/ProxmoxMCP/config.json"
+      }
+    }
+  }
+}
+```
+
+**Configuration File Location:**
+- **All Platforms**: `~/.continue/config.json`
+
+**Remove Server:**
+```bash
+# Remove the "proxmox-mcp" entry from mcpServers
+# Restart VS Code or reload Continue extension
+```
+
+### 🔧 Universal Setup Script
+
+Use this script to automatically configure the correct paths for any client:
+
+```bash
+#!/bin/bash
+# universal_setup.sh - Generate MCP configuration for any client
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENV_PYTHON="$SCRIPT_DIR/venv/bin/python"
+SRC_DIR="$SCRIPT_DIR/src"
+CONFIG_FILE="$SCRIPT_DIR/config.json"
+
+echo "=== Proxmox MCP Universal Configuration ==="
+echo "Base Path: $SCRIPT_DIR"
+echo "Python: $VENV_PYTHON"
+echo "Config: $CONFIG_FILE"
+echo ""
+
+cat <<EOF
+{
+  "mcpServers": {
+    "proxmox-mcp": {
+      "command": "$VENV_PYTHON",
+      "args": ["-m", "proxmox_mcp.server"],
+      "cwd": "$SRC_DIR",
+      "env": {
+        "PROXMOX_MCP_CONFIG": "$CONFIG_FILE"
+      }
+    }
+  }
+}
+EOF
+
+echo ""
+echo "Copy the JSON above to your MCP client configuration file."
+echo "Remember to restart your client after making changes!"
+```
+
+### 🚨 Troubleshooting Client Integration
+
+#### Common Issues
+
+1. **Server Not Starting**
+   - ✅ Verify Python virtual environment path is correct
+   - ✅ Check that `config.json` exists and has proper Proxmox credentials
+   - ✅ Ensure `cwd` points to the `src` directory
+
+2. **Permission Errors**
+   - ✅ Make sure the Python executable is executable
+   - ✅ Check file permissions on configuration files
+   - ✅ Verify virtual environment was created properly
+
+3. **Configuration Not Loading**
+   - ✅ Use absolute paths (not relative)
+   - ✅ Check JSON syntax with a validator
+   - ✅ Restart the client application completely
+
+4. **Connection Timeouts**
+   - ✅ Set logging level to `"ERROR"` in config.json
+   - ✅ Verify Proxmox server is accessible
+   - ✅ Check firewall settings
+
+#### Verification Commands
+
+```bash
+# Test Python environment
+source venv/bin/activate
+python -c "import proxmox_mcp; print('✅ Module loads correctly')"
+
+# Test configuration
+python -c "
+from proxmox_mcp.config.loader import load_config
+config = load_config('config.json')
+print(f'✅ Config loaded: {config.proxmox.host}')
+"
+
+# Test server startup
+cd src
+python -m proxmox_mcp.server --help
+```
+
+### 📝 Configuration Notes
+
+**Important Setup Requirements:**
+- ✅ **Use absolute paths** - Relative paths may not work across all clients
+- ✅ **Set logging level to ERROR** - Reduces noise in client logs  
+- ✅ **Point cwd to src directory** - Required for Python module loading
+- ✅ **Restart client after changes** - Configuration changes require restart
+- ✅ **Use config.json** - Not config-stdio.json or other variants
 
 # 🔧 Available Tools
 
