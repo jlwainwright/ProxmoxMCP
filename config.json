@@ -11,8 +11,8 @@
         "token_value": "3adfdcb2-f6c2-460a-b896-af524c408e8a"
     },
     "logging": {
-        "level": "DEBUG",
+        "level": "ERROR",
         "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        "file": "proxmox_mcp.log"
+        "file": null
     }
 }
