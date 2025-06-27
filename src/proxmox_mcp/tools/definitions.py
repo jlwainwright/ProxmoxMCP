@@ -302,3 +302,147 @@ GET_CLUSTER_STATUS_DESC = """Get overall Proxmox cluster health and configuratio
 
 Example:
 {"name": "proxmox", "quorum": "ok", "nodes": 3, "ha_status": "active"}"""
+
+# Enhanced Monitoring tool descriptions (LLM-driven automation)
+GENERATE_GRAFANA_DASHBOARD_DESC = """Generate Grafana dashboard configuration based on discovered services and infrastructure.
+
+Automatically creates comprehensive dashboard JSON by analyzing:
+- Running services and applications across VMs
+- Database systems and their performance metrics
+- Web services, APIs, and application endpoints
+- Container workloads and resource utilization
+- Infrastructure metrics (CPU, memory, disk, network)
+
+Parameters:
+dashboard_name* - Name for the generated dashboard
+vm_filter - Optional VM name pattern filter (e.g. 'web-*', 'db-*')
+service_types - List of service types to include (['web', 'database', 'api'])
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+{"dashboard_config": {"title": "Auto-Generated Infrastructure", "panels": [...]}, "deployment_script": "#!/bin/bash\\ncurl -X POST...", "services_discovered": 15}"""
+
+DEPLOY_PROMETHEUS_MONITORING_DESC = """Deploy and configure Prometheus monitoring stack with automatic service discovery.
+
+Automatically configures and deploys:
+- Prometheus server with dynamic service discovery
+- Node exporters on all target VMs via QEMU guest agent
+- Application-specific exporters based on discovered services
+- Recording rules for performance and capacity metrics
+- Federation setup for multi-cluster monitoring
+
+Parameters:
+target_vms - List of VM IDs/names to monitor (empty = all VMs)
+metrics_retention - Retention period for metrics (default: '30d')
+scrape_interval - Frequency of metric collection (default: '15s')
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+{"prometheus_config": {"scrape_configs": [...]}, "deployment_manifests": "apiVersion: v1...", "targets_configured": 12}"""
+
+CONFIGURE_INTELLIGENT_ALERTING_DESC = """Configure intelligent alerting based on service criticality and automated discovery.
+
+Creates smart alert rules by analyzing:
+- Service criticality levels (critical, high, medium, low)
+- Historical performance baselines and anomaly detection
+- Application-specific health checks and SLA requirements
+- Infrastructure capacity thresholds and scaling triggers
+- Business impact assessment and escalation paths
+
+Parameters:
+criticality_levels - Dict mapping criticality to service patterns ({"critical": ["*db*", "*auth*"], "high": ["*web*"]})
+alert_channels - Dict mapping severity to notification channels ({"critical": "slack-ops", "high": "email-team"})
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+{"alert_rules": {"groups": [...]}, "alertmanager_config": {"receivers": [...]}, "auto_tuned_thresholds": 25}"""
+
+DEPLOY_LOG_AGGREGATION_DESC = """Deploy and configure log aggregation stack (ELK or Loki) with automatic log source discovery.
+
+Automatically deploys and configures:
+- Elasticsearch/Loki for centralized log storage
+- Logstash/Promtail for log collection and parsing
+- Kibana/Grafana for log visualization and analysis
+- Beats agents for log shipping from all VMs
+- Index templates and retention policies
+
+Parameters:
+stack_type - Type of stack to deploy ('elk' or 'loki', default: 'elk')
+retention_policy - Log retention period (default: '90d')
+log_sources - List of log sources to collect (empty = auto-discover)
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+{"stack_config": {"elasticsearch": {...}}, "deployment_manifests": "apiVersion: v1...", "log_sources_discovered": 45}"""
+
+# Intelligent Backup & Recovery tool descriptions (LLM-driven automation)
+CREATE_INTELLIGENT_BACKUP_SCHEDULE_DESC = """Create intelligent backup schedules based on VM criticality and business requirements.
+
+Automatically analyzes VMs and creates optimized backup strategies:
+- Critical VMs: Hourly snapshots + daily backups + weekly full backups
+- High priority: 4-hour snapshots + daily backups + monthly full backups  
+- Medium priority: Daily snapshots + weekly backups + quarterly full backups
+- Low priority: Weekly snapshots + monthly backups + yearly full backups
+
+Parameters:
+backup_strategy - Strategy type ('tiered', 'aggressive', 'minimal', 'custom')
+criticality_mapping - Dict mapping criticality to VM patterns ({"critical": ["*db*", "*auth*"], "high": ["*web*"]})
+retention_policies - Dict mapping criticality to retention periods ({"critical": "snapshots:24h, daily:30d"})
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+{"backup_schedules": {"jobs": [...]}, "deployment_config": "#!/bin/bash...", "total_vms": 25, "critical_vms": 5}"""
+
+IMPLEMENT_BACKUP_VERIFICATION_DESC = """Implement automated backup verification and testing procedures.
+
+Creates comprehensive backup verification workflows:
+- Automated test restore procedures for all backup types
+- Integrity checking and validation processes
+- Recovery time objective (RTO) testing and validation
+- Recovery point objective (RPO) compliance verification
+- Disaster recovery scenario testing automation
+
+Parameters:
+verification_schedule - How often to run verification ('daily', 'weekly', 'monthly')
+test_environments - List of test environments for restore testing
+verification_depth - Level of verification ('basic', 'full', 'comprehensive')
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+{"verification_procedures": {"procedures": [...]}, "test_environments": [...], "automation_scripts": {...}, "verification_depth": "full"}"""
+
+CREATE_DISASTER_RECOVERY_PLAN_DESC = """Create comprehensive disaster recovery plan with automated failover procedures.
+
+Generates complete DR planning including:
+- Cross-site replication configuration and management
+- Automated failover and failback procedures
+- Recovery time and point objective compliance
+- Communication and escalation workflows
+- Regular DR testing and validation procedures
+
+Parameters:
+recovery_sites - List of recovery site identifiers
+rto_requirements - Dict mapping criticality to RTO requirements ({"critical": "15m", "high": "1h"})
+rpo_requirements - Dict mapping criticality to RPO requirements ({"critical": "5m", "high": "30m"})
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+{"replication_config": {"streams": [...]}, "failover_procedures": {"procedures": [...]}, "dr_testing_plan": {"scenarios": [...]}, "average_rto": "30m"}"""
+
+GENERATE_BACKUP_COMPLIANCE_REPORT_DESC = """Generate comprehensive backup compliance reports with automated recommendations.
+
+Creates detailed compliance reports including:
+- Backup success/failure rates and performance trends
+- Recovery testing results and RTO/RPO compliance
+- Storage utilization and cost analysis
+- Security and encryption compliance validation
+- Automated recommendations for improvement
+
+Parameters:
+compliance_framework - Framework to report against ('general', 'gdpr', 'sox', 'pci')
+reporting_period - Period for the report ('weekly', 'monthly', 'quarterly')
+include_recommendations - Whether to include improvement recommendations (true/false)
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+{"compliance_assessment": {"overall_score": 95.0}, "backup_metrics": {"success_rate": 98.5}, "recommendations": [...], "critical_issues": 0}"""

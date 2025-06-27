@@ -52,7 +52,12 @@
       "Bash(npm search:*)",
       "Bash(npm install:*)",
       "Bash(npm config:*)",
-      "Bash(gemini:*)"
+      "Bash(gemini:*)",
+      "Bash(grep:*)",
+      "Bash(kill:*)",
+      "Bash(jobs)",
+      "Bash(pgrep:*)",
+      "mcp__proxmox-mcp_1__get_nodes"
     ],
     "deny": []
   }

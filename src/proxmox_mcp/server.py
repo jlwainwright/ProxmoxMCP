@@ -38,6 +38,8 @@ from .tools.node import NodeTools
 from .tools.vm import VMTools
 from .tools.storage import StorageTools
 from .tools.cluster import ClusterTools
+from .tools.monitoring import MonitoringTools
+from .tools.backup import BackupTools
 from .tools.definitions import (
     GET_NODES_DESC,
     GET_NODE_STATUS_DESC,
@@ -62,7 +64,15 @@ from .tools.definitions import (
     ANALYZE_APPLICATION_STACK_DESC,
     GET_CONTAINERS_DESC,
     GET_STORAGE_DESC,
-    GET_CLUSTER_STATUS_DESC
+    GET_CLUSTER_STATUS_DESC,
+    GENERATE_GRAFANA_DASHBOARD_DESC,
+    DEPLOY_PROMETHEUS_MONITORING_DESC,
+    CONFIGURE_INTELLIGENT_ALERTING_DESC,
+    DEPLOY_LOG_AGGREGATION_DESC,
+    CREATE_INTELLIGENT_BACKUP_SCHEDULE_DESC,
+    IMPLEMENT_BACKUP_VERIFICATION_DESC,
+    CREATE_DISASTER_RECOVERY_PLAN_DESC,
+    GENERATE_BACKUP_COMPLIANCE_REPORT_DESC
 )
 
 class ProxmoxMCPServer:
@@ -88,6 +98,8 @@ class ProxmoxMCPServer:
         self.vm_tools = VMTools(self.node_manager)
         self.storage_tools = StorageTools(self.node_manager)
         self.cluster_tools = ClusterTools(self.node_manager)
+        self.monitoring_tools = MonitoringTools(self.node_manager)
+        self.backup_tools = BackupTools(self.node_manager)
         
         # Initialize MCP server
         self.mcp = FastMCP("ProxmoxMCP")
@@ -328,6 +340,79 @@ class ProxmoxMCPServer:
             proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
         ):
             return self.cluster_tools.get_cluster_status(proxmox_node)
+
+        # Enhanced Monitoring tools (LLM-driven automation)
+        @self.mcp.tool(description=GENERATE_GRAFANA_DASHBOARD_DESC)
+        def generate_grafana_dashboard(
+            dashboard_name: Annotated[str, Field(description="Name for the generated dashboard")],
+            vm_filter: Annotated[str, Field(description="Optional VM name pattern filter (e.g. 'web-*', 'db-*')")] = None,
+            service_types: Annotated[List[str], Field(description="List of service types to include (['web', 'database', 'api'])")] = None,
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.monitoring_tools.generate_grafana_dashboard(dashboard_name, vm_filter, service_types, proxmox_node)
+
+        @self.mcp.tool(description=DEPLOY_PROMETHEUS_MONITORING_DESC)
+        def deploy_prometheus_monitoring(
+            target_vms: Annotated[List[str], Field(description="List of VM IDs/names to monitor (empty = all VMs)")] = None,
+            metrics_retention: Annotated[str, Field(description="Retention period for metrics (default: '30d')")] = "30d",
+            scrape_interval: Annotated[str, Field(description="Frequency of metric collection (default: '15s')")] = "15s",
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.monitoring_tools.deploy_prometheus_monitoring(target_vms, metrics_retention, scrape_interval, proxmox_node)
+
+        @self.mcp.tool(description=CONFIGURE_INTELLIGENT_ALERTING_DESC)
+        def configure_intelligent_alerting(
+            criticality_levels: Annotated[Dict[str, List[str]], Field(description="Dict mapping criticality to service patterns ({\"critical\": [\"*db*\", \"*auth*\"], \"high\": [\"*web*\"]})")] = None,
+            alert_channels: Annotated[Dict[str, str], Field(description="Dict mapping severity to notification channels ({\"critical\": \"slack-ops\", \"high\": \"email-team\"})")] = None,
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.monitoring_tools.configure_intelligent_alerting(criticality_levels, alert_channels, proxmox_node)
+
+        @self.mcp.tool(description=DEPLOY_LOG_AGGREGATION_DESC)
+        def deploy_log_aggregation(
+            stack_type: Annotated[str, Field(description="Type of stack to deploy ('elk' or 'loki', default: 'elk')")] = "elk",
+            retention_policy: Annotated[str, Field(description="Log retention period (default: '90d')")] = "90d",
+            log_sources: Annotated[List[str], Field(description="List of log sources to collect (empty = auto-discover)")] = None,
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.monitoring_tools.deploy_log_aggregation(stack_type, retention_policy, log_sources, proxmox_node)
+
+        # Intelligent Backup & Recovery tools (LLM-driven automation)
+        @self.mcp.tool(description=CREATE_INTELLIGENT_BACKUP_SCHEDULE_DESC)
+        def create_intelligent_backup_schedule(
+            backup_strategy: Annotated[str, Field(description="Strategy type ('tiered', 'aggressive', 'minimal', 'custom')")] = "tiered",
+            criticality_mapping: Annotated[Dict[str, List[str]], Field(description="Dict mapping criticality to VM patterns ({\"critical\": [\"*db*\", \"*auth*\"], \"high\": [\"*web*\"]})")] = None,
+            retention_policies: Annotated[Dict[str, str], Field(description="Dict mapping criticality to retention periods ({\"critical\": \"snapshots:24h, daily:30d\"})")] = None,
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.backup_tools.create_intelligent_backup_schedule(backup_strategy, criticality_mapping, retention_policies, proxmox_node)
+
+        @self.mcp.tool(description=IMPLEMENT_BACKUP_VERIFICATION_DESC)
+        def implement_backup_verification(
+            verification_schedule: Annotated[str, Field(description="How often to run verification ('daily', 'weekly', 'monthly')")] = "weekly",
+            test_environments: Annotated[List[str], Field(description="List of test environments for restore testing")] = None,
+            verification_depth: Annotated[str, Field(description="Level of verification ('basic', 'full', 'comprehensive')")] = "full",
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.backup_tools.implement_backup_verification(verification_schedule, test_environments, verification_depth, proxmox_node)
+
+        @self.mcp.tool(description=CREATE_DISASTER_RECOVERY_PLAN_DESC)
+        def create_disaster_recovery_plan(
+            recovery_sites: Annotated[List[str], Field(description="List of recovery site identifiers")] = None,
+            rto_requirements: Annotated[Dict[str, str], Field(description="Dict mapping criticality to RTO requirements ({\"critical\": \"15m\", \"high\": \"1h\"})")] = None,
+            rpo_requirements: Annotated[Dict[str, str], Field(description="Dict mapping criticality to RPO requirements ({\"critical\": \"5m\", \"high\": \"30m\"})")] = None,
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.backup_tools.create_disaster_recovery_plan(recovery_sites, rto_requirements, rpo_requirements, proxmox_node)
+
+        @self.mcp.tool(description=GENERATE_BACKUP_COMPLIANCE_REPORT_DESC)
+        def generate_backup_compliance_report(
+            compliance_framework: Annotated[str, Field(description="Framework to report against ('general', 'gdpr', 'sox', 'pci')")] = "general",
+            reporting_period: Annotated[str, Field(description="Period for the report ('weekly', 'monthly', 'quarterly')")] = "monthly",
+            include_recommendations: Annotated[bool, Field(description="Whether to include improvement recommendations")] = True,
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.backup_tools.generate_backup_compliance_report(compliance_framework, reporting_period, include_recommendations, proxmox_node)
 
     def start(self) -> None:
         """Start the MCP server with configured transport.
@@ -592,6 +677,87 @@ class ProxmoxMCPServer:
                         self.auth_middleware.check_scope(request.state.token_info, "proxmox:cluster:read")
                     result = self.cluster_tools.get_cluster_status()
                     
+                # Enhanced Monitoring tools
+                elif tool_name == "generate_grafana_dashboard":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:monitoring:manage")
+                    result = self.monitoring_tools.generate_grafana_dashboard(
+                        parameters.get("dashboard_name"),
+                        parameters.get("vm_filter"),
+                        parameters.get("service_types"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "deploy_prometheus_monitoring":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:monitoring:manage")
+                    result = self.monitoring_tools.deploy_prometheus_monitoring(
+                        parameters.get("target_vms"),
+                        parameters.get("metrics_retention", "30d"),
+                        parameters.get("scrape_interval", "15s"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "configure_intelligent_alerting":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:monitoring:manage")
+                    result = self.monitoring_tools.configure_intelligent_alerting(
+                        parameters.get("criticality_levels"),
+                        parameters.get("alert_channels"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "deploy_log_aggregation":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:monitoring:manage")
+                    result = self.monitoring_tools.deploy_log_aggregation(
+                        parameters.get("stack_type", "elk"),
+                        parameters.get("retention_policy", "90d"),
+                        parameters.get("log_sources"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                # Intelligent Backup & Recovery tools
+                elif tool_name == "create_intelligent_backup_schedule":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:backup:manage")
+                    result = self.backup_tools.create_intelligent_backup_schedule(
+                        parameters.get("backup_strategy", "tiered"),
+                        parameters.get("criticality_mapping"),
+                        parameters.get("retention_policies"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "implement_backup_verification":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:backup:manage")
+                    result = self.backup_tools.implement_backup_verification(
+                        parameters.get("verification_schedule", "weekly"),
+                        parameters.get("test_environments"),
+                        parameters.get("verification_depth", "full"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "create_disaster_recovery_plan":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:backup:manage")
+                    result = self.backup_tools.create_disaster_recovery_plan(
+                        parameters.get("recovery_sites"),
+                        parameters.get("rto_requirements"),
+                        parameters.get("rpo_requirements"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "generate_backup_compliance_report":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:backup:read")
+                    result = self.backup_tools.generate_backup_compliance_report(
+                        parameters.get("compliance_framework", "general"),
+                        parameters.get("reporting_period", "monthly"),
+                        parameters.get("include_recommendations", True),
+                        parameters.get("proxmox_node")
+                    )
+                    
                 else:
                     raise HTTPException(status_code=404, detail=f"Tool not found: {tool_name}")
                 
@@ -721,6 +887,48 @@ class ProxmoxMCPServer:
                     "name": "get_cluster_status",
                     "description": GET_CLUSTER_STATUS_DESC,
                     "required_scope": "proxmox:cluster:read"
+                },
+                # Enhanced Monitoring tools
+                {
+                    "name": "generate_grafana_dashboard",
+                    "description": GENERATE_GRAFANA_DASHBOARD_DESC,
+                    "required_scope": "proxmox:monitoring:manage"
+                },
+                {
+                    "name": "deploy_prometheus_monitoring",
+                    "description": DEPLOY_PROMETHEUS_MONITORING_DESC,
+                    "required_scope": "proxmox:monitoring:manage"
+                },
+                {
+                    "name": "configure_intelligent_alerting",
+                    "description": CONFIGURE_INTELLIGENT_ALERTING_DESC,
+                    "required_scope": "proxmox:monitoring:manage"
+                },
+                {
+                    "name": "deploy_log_aggregation",
+                    "description": DEPLOY_LOG_AGGREGATION_DESC,
+                    "required_scope": "proxmox:monitoring:manage"
+                },
+                # Intelligent Backup & Recovery tools
+                {
+                    "name": "create_intelligent_backup_schedule",
+                    "description": CREATE_INTELLIGENT_BACKUP_SCHEDULE_DESC,
+                    "required_scope": "proxmox:backup:manage"
+                },
+                {
+                    "name": "implement_backup_verification",
+                    "description": IMPLEMENT_BACKUP_VERIFICATION_DESC,
+                    "required_scope": "proxmox:backup:manage"
+                },
+                {
+                    "name": "create_disaster_recovery_plan",
+                    "description": CREATE_DISASTER_RECOVERY_PLAN_DESC,
+                    "required_scope": "proxmox:backup:manage"
+                },
+                {
+                    "name": "generate_backup_compliance_report",
+                    "description": GENERATE_BACKUP_COMPLIANCE_REPORT_DESC,
+                    "required_scope": "proxmox:backup:read"
                 }
             ]
             return {"tools": tools}
