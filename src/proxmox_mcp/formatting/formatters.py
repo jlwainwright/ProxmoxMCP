@@ -155,3 +155,30 @@ class ProxmoxFormatters:
             ])
             
         return "\n".join(result)
+    
+    @staticmethod
+    def format_vm_operation_result(operation: str, vmid: str, node: str, success: bool, task_id: str = None) -> str:
+        """Format VM operation result.
+        
+        Args:
+            operation: Operation performed (start, stop, restart, suspend)
+            vmid: VM ID
+            node: Node name
+            success: Whether operation succeeded
+            task_id: Optional Proxmox task ID
+            
+        Returns:
+            Formatted operation result string
+        """
+        result = [
+            f"{ProxmoxTheme.ACTIONS['vm_control']} VM {operation.title()} Operation",
+            f"  • VM ID: {vmid}",
+            f"  • Node: {node}",
+            f"  • Status: {'SUCCESS' if success else 'FAILED'}",
+            f"  • Operation: {operation.upper()}"
+        ]
+        
+        if task_id:
+            result.append(f"  • Task ID: {task_id}")
+            
+        return "\n".join(result)

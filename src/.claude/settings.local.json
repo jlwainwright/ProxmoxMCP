@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(PYTHONPATH=/Users/jacques/DevFolder/ProxmoxMCP/src python -m proxmox_mcp.server --config /Users/jacques/DevFolder/ProxmoxMCP/config.json)",
+      "Bash(PYTHONPATH=/Users/jacques/DevFolder/ProxmoxMCP/src PROXMOX_MCP_CONFIG=/Users/jacques/DevFolder/ProxmoxMCP/config.json /Users/jacques/DevFolder/ProxmoxMCP/venv/bin/python -m proxmox_mcp.server)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "mcp__proxmox-mcp__get_cluster_status",
+      "mcp__proxmox-mcp__get_nodes",
+      "mcp__proxmox-mcp__get_vms",
+      "mcp__proxmox-mcp__get_storage",
+      "mcp__proxmox-mcp__execute_vm_command"
+    ],
+    "deny": []
+  }
+}

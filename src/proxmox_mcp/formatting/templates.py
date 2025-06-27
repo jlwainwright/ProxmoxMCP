@@ -186,6 +186,78 @@ class ProxmoxTemplates:
         return "\n".join(result)
 
     @staticmethod
+    def vm_status(vm_data: Dict[str, Any]) -> str:
+        """Template for detailed VM status output.
+        
+        Args:
+            vm_data: VM data containing vmid, node, and status information
+            
+        Returns:
+            Formatted VM status string
+        """
+        vmid = vm_data.get("vmid", "unknown")
+        node = vm_data.get("node", "unknown")
+        status = vm_data.get("status", {})
+        
+        # Basic status information
+        vm_status = status.get("status", "unknown")
+        name = status.get("name", f"VM-{vmid}")
+        
+        result = [
+            f"{ProxmoxTheme.RESOURCES['vm']} Virtual Machine Status",
+            "",
+            f"  • VM ID: {vmid}",
+            f"  • Name: {name}",
+            f"  • Node: {node}",
+            f"  • Status: {vm_status.upper()}",
+        ]
+        
+        # CPU information
+        cpu_cores = status.get("cores", status.get("cpus", "N/A"))
+        cpu_usage = status.get("cpu", 0)
+        if cpu_usage:
+            cpu_percent = cpu_usage * 100 if cpu_usage < 1 else cpu_usage
+            result.append(f"  • CPU: {cpu_cores} cores ({cpu_percent:.1f}% usage)")
+        else:
+            result.append(f"  • CPU: {cpu_cores} cores")
+        
+        # Memory information
+        memory_used = status.get("mem", 0)
+        memory_total = status.get("maxmem", 0)
+        if memory_total > 0:
+            memory_percent = (memory_used / memory_total * 100)
+            result.append(
+                f"  • Memory: {ProxmoxFormatters.format_bytes(memory_used)} / "
+                f"{ProxmoxFormatters.format_bytes(memory_total)} ({memory_percent:.1f}%)"
+            )
+        
+        # Disk information
+        disk_used = status.get("disk", 0)
+        disk_total = status.get("maxdisk", 0)
+        if disk_total > 0:
+            disk_percent = (disk_used / disk_total * 100)
+            result.append(
+                f"  • Disk: {ProxmoxFormatters.format_bytes(disk_used)} / "
+                f"{ProxmoxFormatters.format_bytes(disk_total)} ({disk_percent:.1f}%)"
+            )
+        
+        # Network information
+        netin = status.get("netin", 0)
+        netout = status.get("netout", 0)
+        if netin > 0 or netout > 0:
+            result.append(
+                f"  • Network: In {ProxmoxFormatters.format_bytes(netin)} / "
+                f"Out {ProxmoxFormatters.format_bytes(netout)}"
+            )
+        
+        # Uptime
+        uptime = status.get("uptime", 0)
+        if uptime > 0:
+            result.append(f"  • Uptime: {ProxmoxFormatters.format_uptime(uptime)}")
+        
+        return "\n".join(result)
+
+    @staticmethod
     def cluster_status(status: Dict[str, Any]) -> str:
         """Template for cluster status output.
         

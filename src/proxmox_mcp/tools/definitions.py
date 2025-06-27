@@ -32,6 +32,52 @@ command* - Shell command to run (e.g. 'uname -a')
 Example:
 {"success": true, "output": "Linux vm1 5.4.0", "exit_code": 0}"""
 
+# VM Control tool descriptions
+START_VM_DESC = """Start a virtual machine.
+
+Parameters:
+node* - Host node name (e.g. 'pve1')
+vmid* - VM ID number (e.g. '100')
+
+Example:
+{"success": true, "task_id": "UPID:...", "operation": "start"}"""
+
+STOP_VM_DESC = """Stop a virtual machine.
+
+Parameters:
+node* - Host node name (e.g. 'pve1')
+vmid* - VM ID number (e.g. '100')
+
+Example:
+{"success": true, "task_id": "UPID:...", "operation": "stop"}"""
+
+RESTART_VM_DESC = """Restart a virtual machine.
+
+Parameters:
+node* - Host node name (e.g. 'pve1')
+vmid* - VM ID number (e.g. '100')
+
+Example:
+{"success": true, "task_id": "UPID:...", "operation": "restart"}"""
+
+SUSPEND_VM_DESC = """Suspend a virtual machine.
+
+Parameters:
+node* - Host node name (e.g. 'pve1')
+vmid* - VM ID number (e.g. '100')
+
+Example:
+{"success": true, "task_id": "UPID:...", "operation": "suspend"}"""
+
+GET_VM_STATUS_DESC = """Get detailed status information for a specific VM.
+
+Parameters:
+node* - Host node name (e.g. 'pve1')
+vmid* - VM ID number (e.g. '100')
+
+Example:
+{"vmid": "100", "name": "ubuntu", "status": "running", "cpu": "2 cores", "memory": "4.0 GB / 8.0 GB"}"""
+
 # Container tool descriptions
 GET_CONTAINERS_DESC = """List all LXC containers across the cluster with their status and configuration.
 

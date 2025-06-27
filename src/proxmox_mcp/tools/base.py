@@ -94,6 +94,8 @@ class ProxmoxTool:
             formatted = ProxmoxTemplates.container_list(data)
         elif resource_type == "cluster":
             formatted = ProxmoxTemplates.cluster_status(data)
+        elif resource_type == "vm_status":
+            formatted = ProxmoxTemplates.vm_status(data)
         else:
             # Fallback to JSON formatting for unknown types
             import json

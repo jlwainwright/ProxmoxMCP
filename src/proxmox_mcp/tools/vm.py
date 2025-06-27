@@ -167,3 +167,170 @@ class VMTools(ProxmoxTool):
             return [Content(type="text", text=formatted)]
         except Exception as e:
             self._handle_error(f"execute command on VM {vmid}", e)
+
+    def start_vm(self, node: str, vmid: str, proxmox_node: str = None) -> List[Content]:
+        """Start a virtual machine.
+
+        Args:
+            node: Host node name (e.g., 'pve1', 'proxmox-node2')
+            vmid: VM ID number (e.g., '100', '101')
+            proxmox_node: Proxmox instance to query (optional, uses default if None)
+
+        Returns:
+            List of Content objects containing formatted operation result
+
+        Raises:
+            ValueError: If VM is not found or already running
+            RuntimeError: If start operation fails
+        """
+        try:
+            proxmox = self._get_api(proxmox_node)
+            result = proxmox.nodes(node).qemu(vmid).status.start.post()
+            
+            # Format the result
+            from ..formatting import ProxmoxFormatters
+            formatted = ProxmoxFormatters.format_vm_operation_result(
+                operation="start",
+                vmid=vmid,
+                node=node,
+                success=True,
+                task_id=result
+            )
+            return [Content(type="text", text=formatted)]
+        except Exception as e:
+            self._handle_error(f"start VM {vmid} on node {node}", e)
+
+    def stop_vm(self, node: str, vmid: str, proxmox_node: str = None) -> List[Content]:
+        """Stop a virtual machine.
+
+        Args:
+            node: Host node name (e.g., 'pve1', 'proxmox-node2')
+            vmid: VM ID number (e.g., '100', '101')
+            proxmox_node: Proxmox instance to query (optional, uses default if None)
+
+        Returns:
+            List of Content objects containing formatted operation result
+
+        Raises:
+            ValueError: If VM is not found or already stopped
+            RuntimeError: If stop operation fails
+        """
+        try:
+            proxmox = self._get_api(proxmox_node)
+            result = proxmox.nodes(node).qemu(vmid).status.stop.post()
+            
+            # Format the result
+            from ..formatting import ProxmoxFormatters
+            formatted = ProxmoxFormatters.format_vm_operation_result(
+                operation="stop",
+                vmid=vmid,
+                node=node,
+                success=True,
+                task_id=result
+            )
+            return [Content(type="text", text=formatted)]
+        except Exception as e:
+            self._handle_error(f"stop VM {vmid} on node {node}", e)
+
+    def restart_vm(self, node: str, vmid: str, proxmox_node: str = None) -> List[Content]:
+        """Restart a virtual machine.
+
+        Args:
+            node: Host node name (e.g., 'pve1', 'proxmox-node2')
+            vmid: VM ID number (e.g., '100', '101')
+            proxmox_node: Proxmox instance to query (optional, uses default if None)
+
+        Returns:
+            List of Content objects containing formatted operation result
+
+        Raises:
+            ValueError: If VM is not found
+            RuntimeError: If restart operation fails
+        """
+        try:
+            proxmox = self._get_api(proxmox_node)
+            result = proxmox.nodes(node).qemu(vmid).status.reboot.post()
+            
+            # Format the result
+            from ..formatting import ProxmoxFormatters
+            formatted = ProxmoxFormatters.format_vm_operation_result(
+                operation="restart",
+                vmid=vmid,
+                node=node,
+                success=True,
+                task_id=result
+            )
+            return [Content(type="text", text=formatted)]
+        except Exception as e:
+            self._handle_error(f"restart VM {vmid} on node {node}", e)
+
+    def suspend_vm(self, node: str, vmid: str, proxmox_node: str = None) -> List[Content]:
+        """Suspend a virtual machine.
+
+        Args:
+            node: Host node name (e.g., 'pve1', 'proxmox-node2')
+            vmid: VM ID number (e.g., '100', '101')
+            proxmox_node: Proxmox instance to query (optional, uses default if None)
+
+        Returns:
+            List of Content objects containing formatted operation result
+
+        Raises:
+            ValueError: If VM is not found or already suspended
+            RuntimeError: If suspend operation fails
+        """
+        try:
+            proxmox = self._get_api(proxmox_node)
+            result = proxmox.nodes(node).qemu(vmid).status.suspend.post()
+            
+            # Format the result
+            from ..formatting import ProxmoxFormatters
+            formatted = ProxmoxFormatters.format_vm_operation_result(
+                operation="suspend",
+                vmid=vmid,
+                node=node,
+                success=True,
+                task_id=result
+            )
+            return [Content(type="text", text=formatted)]
+        except Exception as e:
+            self._handle_error(f"suspend VM {vmid} on node {node}", e)
+
+    def get_vm_status(self, node: str, vmid: str, proxmox_node: str = None) -> List[Content]:
+        """Get detailed status information for a specific VM.
+
+        Args:
+            node: Host node name (e.g., 'pve1', 'proxmox-node2')
+            vmid: VM ID number (e.g., '100', '101')
+            proxmox_node: Proxmox instance to query (optional, uses default if None)
+
+        Returns:
+            List of Content objects containing formatted VM status
+
+        Raises:
+            ValueError: If VM is not found
+            RuntimeError: If status retrieval fails
+        """
+        try:
+            proxmox = self._get_api(proxmox_node)
+            
+            # Get current status
+            status = proxmox.nodes(node).qemu(vmid).status.current.get()
+            
+            # Get configuration for additional details
+            try:
+                config = proxmox.nodes(node).qemu(vmid).config.get()
+                status.update(config)
+            except Exception:
+                # Continue without config if unavailable
+                pass
+            
+            # Format the result
+            result = {
+                "vmid": vmid,
+                "node": node,
+                "status": status
+            }
+            return self._format_response(result, "vm_status")
+        except Exception as e:
+            self._handle_error(f"get status for VM {vmid} on node {node}", e)

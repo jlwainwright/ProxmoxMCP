@@ -43,6 +43,11 @@ from .tools.definitions import (
     GET_NODE_STATUS_DESC,
     GET_VMS_DESC,
     EXECUTE_VM_COMMAND_DESC,
+    START_VM_DESC,
+    STOP_VM_DESC,
+    RESTART_VM_DESC,
+    SUSPEND_VM_DESC,
+    GET_VM_STATUS_DESC,
     GET_CONTAINERS_DESC,
     GET_STORAGE_DESC,
     GET_CLUSTER_STATUS_DESC
@@ -154,6 +159,47 @@ class ProxmoxMCPServer:
             proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
         ):
             return await self.vm_tools.execute_command(node, vmid, command, proxmox_node)
+
+        # VM Control tools
+        @self.mcp.tool(description=START_VM_DESC)
+        def start_vm(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.vm_tools.start_vm(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=STOP_VM_DESC)
+        def stop_vm(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.vm_tools.stop_vm(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=RESTART_VM_DESC)
+        def restart_vm(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.vm_tools.restart_vm(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=SUSPEND_VM_DESC)
+        def suspend_vm(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.vm_tools.suspend_vm(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=GET_VM_STATUS_DESC)
+        def get_vm_status(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.vm_tools.get_vm_status(node, vmid, proxmox_node)
 
         # Storage tools
         @self.mcp.tool(description=GET_STORAGE_DESC)
@@ -283,6 +329,46 @@ class ProxmoxMCPServer:
                         parameters.get("command")
                     )
                     
+                elif tool_name == "start_vm":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:vms:control")
+                    result = self.vm_tools.start_vm(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "stop_vm":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:vms:control")
+                    result = self.vm_tools.stop_vm(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "restart_vm":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:vms:control")
+                    result = self.vm_tools.restart_vm(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "suspend_vm":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:vms:control")
+                    result = self.vm_tools.suspend_vm(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "get_vm_status":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:vms:read")
+                    result = self.vm_tools.get_vm_status(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
                 elif tool_name == "get_storage":
                     if self.auth_middleware and hasattr(request.state, 'token_info'):
                         self.auth_middleware.check_scope(request.state.token_info, "proxmox:storage:read")
@@ -327,6 +413,31 @@ class ProxmoxMCPServer:
                     "name": "execute_vm_command",
                     "description": EXECUTE_VM_COMMAND_DESC,
                     "required_scope": "proxmox:vms:execute"
+                },
+                {
+                    "name": "start_vm",
+                    "description": START_VM_DESC,
+                    "required_scope": "proxmox:vms:control"
+                },
+                {
+                    "name": "stop_vm",
+                    "description": STOP_VM_DESC,
+                    "required_scope": "proxmox:vms:control"
+                },
+                {
+                    "name": "restart_vm",
+                    "description": RESTART_VM_DESC,
+                    "required_scope": "proxmox:vms:control"
+                },
+                {
+                    "name": "suspend_vm",
+                    "description": SUSPEND_VM_DESC,
+                    "required_scope": "proxmox:vms:control"
+                },
+                {
+                    "name": "get_vm_status",
+                    "description": GET_VM_STATUS_DESC,
+                    "required_scope": "proxmox:vms:read"
                 },
                 {
                     "name": "get_storage",

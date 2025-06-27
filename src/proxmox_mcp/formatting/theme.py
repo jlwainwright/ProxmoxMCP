@@ -44,6 +44,7 @@ class ProxmoxTheme:
         'warning': '⚠️',
         'info': 'ℹ️',
         'command': '🔧',
+        'vm_control': '🎮',
         'start': '▶️',
         'stop': '⏹️',
         'restart': '🔄',
