@@ -2,6 +2,21 @@
 
 ![ProxmoxMCP](https://github.com/user-attachments/assets/e32ab79f-be8a-420c-ab2d-475612150534)
 
+## 🚨 CRITICAL SECURITY NOTICE
+
+**This MCP server provides direct access to your Proxmox virtualization infrastructure. Improper configuration can expose your entire virtual environment to security risks.**
+
+**⚠️ BEFORE INSTALLATION: READ [SECURITY.md](SECURITY.md)**
+
+**🔒 REQUIRED SECURITY ACTIONS:**
+- **Change ALL default credentials** before first use
+- **Enable SSL verification** (`verify_ssl: true`) for production
+- **Use dedicated service accounts** (not root@pam)
+- **Generate strong API tokens** with expiration dates
+- **Never commit credentials** to version control
+
+---
+
 A Python-based Model Context Protocol (MCP) server for interacting with Proxmox hypervisors, providing a clean interface for managing nodes, VMs, and containers. Now with **OAuth 2.1 authorization** support!
 
 ## 🏗️ Built With
@@ -82,24 +97,42 @@ Before starting, ensure you have:
    cp config/config.example.json proxmox-config/config.json
    ```
 
-4. Edit `proxmox-config/config.json`:
+4. **🔒 SECURITY: Use the secure configuration template:**
+   ```bash
+   # Copy secure template with validation
+   cp config-secure-template.json proxmox-config/config.json
+   ```
+
+   **⚠️ CRITICAL: Replace ALL placeholder values marked with "CHANGE-THIS"**
+   
+   **🚨 INSECURE EXAMPLE (DO NOT USE AS-IS):**
    ```json
    {
        "proxmox": {
-           "host": "PROXMOX_HOST",        # Required: Your Proxmox server address
-           "port": 8006,                  # Optional: Default is 8006
-           "verify_ssl": false,           # Optional: Set false for self-signed certs
-           "service": "PVE"               # Optional: Default is PVE
+           "host": "CHANGE-THIS-PROXMOX-HOST-VALUE",
+           "verify_ssl": true,            // ⚠️ REQUIRED: Always true in production
+           "service": "PVE"
        },
        "auth": {
-           "user": "USER@pve",            # Required: Your Proxmox username
-           "token_name": "TOKEN_NAME",    # Required: API token ID
-           "token_value": "TOKEN_VALUE"   # Required: API token value
+           "user": "CHANGE-THIS-USER-VALUE@pam",     // ⚠️ Use dedicated service account
+           "token_name": "CHANGE-THIS-TOKEN-NAME",   // ⚠️ Use descriptive names
+           "token_value": "CHANGE-THIS-TOKEN-VALUE"  // ⚠️ Generate strong token
+       }
+   }
+   ```
+
+   **✅ SECURE PRODUCTION EXAMPLE:**
+   ```json
+   {
+       "proxmox": {
+           "host": "proxmox.internal.company.com",  // ✅ Your actual server
+           "verify_ssl": true,                      // ✅ ALWAYS true
+           "service": "PVE"
        },
-       "logging": {
-           "level": "INFO",               # Optional: DEBUG for more detail
-           "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-           "file": "proxmox_mcp.log"      # Optional: Log to file
+       "auth": {
+           "user": "mcp-service@pam",               // ✅ Dedicated account
+           "token_name": "mcp-prod-2024-q4",       // ✅ Descriptive name
+           "token_value": "a8f5c2d9-4e7b-4c3a"    // ✅ Strong generated token
        }
    }
    ```
@@ -156,23 +189,26 @@ The server supports two transport modes and optional OAuth 2.1 authorization:
 ### Configuration Examples
 
 #### Basic Stdio Configuration (`config-stdio.json`)
+
+**🚨 WARNING: This example contains insecure settings for demonstration only**
+
 ```json
 {
   "proxmox": {
-    "host": "192.168.1.100",
+    "host": "proxmox.internal.company.com",     // ✅ Use your actual server
     "port": 8006,
-    "verify_ssl": false,
+    "verify_ssl": true,                         // ⚠️ CRITICAL: Always true in production
     "service": "PVE"
   },
   "auth": {
-    "user": "root@pam",
-    "token_name": "mcp-token",
-    "token_value": "your-token-secret-here"
+    "user": "mcp-service@pam",                  // ✅ Dedicated service account (not root)
+    "token_name": "mcp-prod-2024-q4",          // ✅ Descriptive, versioned name
+    "token_value": "REPLACE-WITH-GENERATED-TOKEN-VALUE"  // ⚠️ Generate secure token
   },
   "logging": {
     "level": "INFO",
-    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    "file": null
+    "format": "%(asctime)s - %(name)s - %(levelname)s - [%(funcName)s:%(lineno)d] - %(message)s",
+    "file": "proxmox_mcp_security.log"         // ✅ Enable file logging
   },
   "transport": {
     "type": "stdio"
@@ -183,47 +219,59 @@ The server supports two transport modes and optional OAuth 2.1 authorization:
 }
 ```
 
+**🔒 SECURITY REQUIREMENTS:**
+- Replace `REPLACE-WITH-GENERATED-TOKEN-VALUE` with actual secure token
+- Ensure `verify_ssl: true` for production deployments
+- Use dedicated service account with minimal permissions
+
 #### HTTP with OAuth Configuration (`config-http-auth.json`)
+
+**🚨 CRITICAL: This configuration requires additional security hardening**
+
 ```json
 {
   "proxmox": {
-    "host": "192.168.1.100",
+    "host": "proxmox.internal.company.com",     // ✅ Use FQDN with valid cert
     "port": 8006,
-    "verify_ssl": false,
+    "verify_ssl": true,                         // ⚠️ CRITICAL: Must be true
     "service": "PVE"
   },
   "auth": {
-    "user": "root@pam",
-    "token_name": "mcp-token",
-    "token_value": "your-token-secret-here"
+    "user": "mcp-service@pam",                  // ✅ Dedicated service account
+    "token_name": "mcp-oauth-prod-2024",       // ✅ Descriptive name
+    "token_value": "REPLACE-WITH-SECURE-TOKEN" // ⚠️ Generate strong token
   },
   "logging": {
     "level": "INFO",
-    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    "file": "proxmox_mcp.log"
+    "format": "%(asctime)s - %(name)s - %(levelname)s - [%(funcName)s:%(lineno)d] - %(message)s",
+    "file": "proxmox_mcp_security.log"
   },
   "transport": {
     "type": "http",
-    "host": "0.0.0.0",
-    "port": 8080
+    "host": "127.0.0.1",                       // ✅ SECURE: Localhost only
+    "port": 8443                               // ✅ Non-standard port
   },
   "authorization": {
     "enabled": true,
-    "issuer": "http://localhost:8080",
-    "audience": "proxmox-mcp-server",
+    "issuer": "https://auth.internal.company.com",  // ✅ HTTPS only
+    "audience": "proxmox-mcp-production",
     "scopes": [
-      "proxmox:nodes:read",
-      "proxmox:vms:read",
-      "proxmox:vms:execute",
-      "proxmox:storage:read",
-      "proxmox:cluster:read"
+      "proxmox:nodes:read"                     // ✅ Minimal required scope
     ],
-    "token_expiry": 3600,
-    "dynamic_client_registration": true,
-    "secret_key": "your-secret-key-for-jwt-signing-change-this-in-production"
+    "token_expiry": 3600,                      // ✅ 1 hour maximum
+    "dynamic_client_registration": false,     // ✅ Disabled for production
+    "secret_key": "REPLACE-WITH-64-CHAR-CRYPTOGRAPHICALLY-SECURE-SECRET-KEY"
   }
 }
 ```
+
+**🚨 CRITICAL SECURITY WARNINGS:**
+- **Replace ALL placeholder values** before deployment
+- **Generate 64+ character secret key** for JWT signing
+- **Use HTTPS only** for issuer and redirect URIs
+- **Bind to localhost** (127.0.0.1) unless reverse proxy configured
+- **Minimize OAuth scopes** to required permissions only
+- **Disable dynamic client registration** in production
 
 ### OAuth 2.1 Scopes
 
@@ -878,17 +926,51 @@ Expected response with formatted node information showing status, uptime, CPU, m
 
 ## 🔐 Security & Authorization
 
-### Production Security Checklist
+### 🚨 MANDATORY Production Security Checklist
 
-For production deployments with OAuth authorization:
+**⚠️ CRITICAL: Complete ALL items before production deployment**
 
-- ✅ **Set a strong secret key** for JWT signing
-- ✅ **Use HTTPS** for all OAuth endpoints  
-- ✅ **Configure appropriate CORS** origins
-- ✅ **Use secure redirect URIs**
-- ✅ **Monitor and log** authorization events
-- ✅ **Rotate tokens** regularly
-- ✅ **Review scope permissions** for least privilege
+- [ ] **🔑 Changed ALL default credentials** and placeholder values
+- [ ] **🔒 Enabled SSL verification** (`verify_ssl: true`)
+- [ ] **👤 Created dedicated service account** (not root@pam)
+- [ ] **🎫 Generated strong API tokens** with expiration dates
+- [ ] **🔐 Set 64+ character JWT secret key** for authorization
+- [ ] **🌐 Used HTTPS only** for all OAuth endpoints
+- [ ] **🏠 Bound to specific IP** (not 0.0.0.0) or localhost only
+- [ ] **📝 Enabled comprehensive logging** with security monitoring
+- [ ] **🔥 Configured firewall rules** restricting access
+- [ ] **⏰ Set token expiration** policies (1-4 hours max)
+- [ ] **🎯 Minimized OAuth scopes** to required permissions only
+- [ ] **📊 Implemented log monitoring** for security events
+
+### 🛡️ Security Validation Script
+
+**Run this before deployment to check for security issues:**
+
+```bash
+# Download and run security validation
+curl -s https://raw.githubusercontent.com/canvrno/ProxmoxMCP/main/scripts/security-check.sh | bash
+
+# Or manually check configuration
+python3 -c "
+import json
+with open('config.json') as f:
+    config = json.load(f)
+    
+# Check for placeholder values
+config_str = json.dumps(config)
+if any(placeholder in config_str for placeholder in ['CHANGE-THIS', 'your-token', 'localhost', 'example']):
+    print('❌ CRITICAL: Placeholder values detected')
+    exit(1)
+
+# Check SSL verification
+if not config.get('proxmox', {}).get('verify_ssl', False):
+    print('❌ CRITICAL: SSL verification disabled')
+    exit(1)
+
+print('✅ Basic security validation passed')
+"
+```
 
 ### Default Test Client
 

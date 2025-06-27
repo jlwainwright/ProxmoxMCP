@@ -1,0 +1,79 @@
+{
+  "_SECURITY_WARNING": "🚨 REPLACE ALL PLACEHOLDER VALUES BEFORE USE 🚨",
+  "_VALIDATION_REQUIRED": [
+    "proxmox.host - Replace with your actual Proxmox server",
+    "auth.user - Use dedicated service account (not root)",
+    "auth.token_name - Use descriptive, unique name",
+    "auth.token_value - Generate strong API token",
+    "authorization.secret_key - Generate 64+ character secret"
+  ],
+  "_PRODUCTION_CHECKLIST": [
+    "Enable SSL verification (verify_ssl: true)",
+    "Use HTTPS for Proxmox server",
+    "Bind to specific IP address (not 0.0.0.0)",
+    "Enable comprehensive logging",
+    "Configure firewall rules",
+    "Set token expiration dates",
+    "Review OAuth scopes for least privilege"
+  ],
+  
+  "proxmox": {
+    "host": "CHANGE-THIS-PROXMOX-HOST-VALUE",
+    "port": 8006,
+    "verify_ssl": true,
+    "service": "PVE",
+    "_security_note": "⚠️ ALWAYS use verify_ssl: true in production"
+  },
+  
+  "auth": {
+    "user": "CHANGE-THIS-USER-VALUE@pam",
+    "token_name": "CHANGE-THIS-TOKEN-NAME-VALUE", 
+    "token_value": "CHANGE-THIS-TOKEN-VALUE",
+    "_security_notes": [
+      "⚠️ Create dedicated service account (not root)",
+      "⚠️ Use descriptive token names with dates",
+      "⚠️ Generate cryptographically secure token values",
+      "⚠️ Set token expiration dates in Proxmox"
+    ]
+  },
+  
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - [%(funcName)s:%(lineno)d] - %(message)s",
+    "file": "proxmox_mcp_security.log",
+    "_security_note": "⚠️ Monitor logs for security events"
+  },
+  
+  "transport": {
+    "type": "stdio",
+    "_security_notes": [
+      "⚠️ For HTTP mode: bind to 127.0.0.1 or specific IP",
+      "⚠️ Never use 0.0.0.0 in production",
+      "⚠️ Use non-standard ports when possible"
+    ]
+  },
+  
+  "authorization": {
+    "enabled": false,
+    "_http_mode_security": {
+      "enabled": true,
+      "issuer": "https://CHANGE-THIS-DOMAIN.com",
+      "audience": "proxmox-mcp-production",
+      "secret_key": "CHANGE-THIS-64-CHAR-SECRET-KEY-VALUE-FOR-JWT-SIGNING-MIN-32-CHARS",
+      "token_expiry": 3600,
+      "scopes": [
+        "proxmox:nodes:read"
+      ],
+      "dynamic_client_registration": false,
+      "_security_warnings": [
+        "⚠️ Generate cryptographically secure secret_key (64+ chars)",
+        "⚠️ Use HTTPS only for issuer URL",
+        "⚠️ Minimize scopes to required permissions only",
+        "⚠️ Disable dynamic client registration in production",
+        "⚠️ Set short token expiry (1-4 hours maximum)"
+      ]
+    }
+  },
+  
+  "_VALIDATION_SCRIPT": "Run: python -c \"import json; c=json.load(open('config.json')); exit(1 if any('CHANGE-THIS' in str(v) for v in json.dumps(c)) else 0)\" to check for placeholders"
+}
