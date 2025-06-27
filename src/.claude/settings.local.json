@@ -35,7 +35,13 @@
       "Bash(chmod:*)",
       "Bash(git -C /Users/jacques/DevFolder/ProxmoxMCP add SECURITY.md config-secure-template.json README.md src/proxmox_mcp/config/loader.py scripts/)",
       "Bash(git -C /Users/jacques/DevFolder/ProxmoxMCP add -f SECURITY.md)",
-      "Bash(git -C /Users/jacques/DevFolder/ProxmoxMCP add -A)"
+      "Bash(git -C /Users/jacques/DevFolder/ProxmoxMCP add -A)",
+      "Bash(git -C /Users/jacques/DevFolder/ProxmoxMCP commit -m \"$(cat <<'EOF'\nfeat: Implement Phase 1 & 2 LLM-driven infrastructure automation\n\nAdd comprehensive monitoring and backup automation tools:\n\nPhase 1 - Enhanced Monitoring Tools:\n- generate_grafana_dashboard: Auto-creates dashboards from service discovery\n- deploy_prometheus_monitoring: Deploys complete monitoring stack with exporters\n- configure_intelligent_alerting: Criticality-based smart alerting system  \n- deploy_log_aggregation: ELK/Loki stack deployment with auto-discovery\n\nPhase 2 - Backup & Recovery Automation:\n- create_intelligent_backup_schedule: Tiered backup strategies by VM criticality\n- implement_backup_verification: Automated backup testing and validation\n- create_disaster_recovery_plan: Complete DR planning with RTO/RPO compliance\n- generate_backup_compliance_report: Comprehensive compliance reporting\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(PYTHONPATH=/Users/jacques/DevFolder/ProxmoxMCP/src python -c \"from proxmox_mcp.tools.monitoring import MonitoringTools; print('Import successful')\")",
+      "Bash(PYTHONPATH=/Users/jacques/DevFolder/ProxmoxMCP/src python -c \"from proxmox_mcp.tools.monitoring import MonitoringTools; from proxmox_mcp.tools.backup import BackupTools; print('Import successful')\")",
+      "Bash(PYTHONPATH=/Users/jacques/DevFolder/ProxmoxMCP/src PROXMOX_MCP_CONFIG=/Users/jacques/DevFolder/ProxmoxMCP/config.json python -c \"from proxmox_mcp.server import ProxmoxMCPServer; print('Server import successful')\")"
     ],
     "deny": []
   }

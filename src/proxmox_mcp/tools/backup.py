@@ -17,7 +17,11 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from mcp.types import TextContent as Content
 from .base import ProxmoxTool
-from ..formatting.formatters import format_info_with_icon
+from ..formatting.formatters import ProxmoxFormatters
+
+def format_info_with_icon(text: str, icon: str = "💾") -> str:
+    """Simple helper function for consistent formatting."""
+    return f"{icon} {text}"
 
 class BackupTools(ProxmoxTool):
     """Intelligent backup and recovery tools for LLM-driven automation.

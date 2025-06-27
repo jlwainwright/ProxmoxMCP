@@ -16,7 +16,11 @@ import yaml
 from typing import List, Dict, Any, Optional
 from mcp.types import TextContent as Content
 from .base import ProxmoxTool
-from ..formatting.formatters import format_info_with_icon
+from ..formatting.formatters import ProxmoxFormatters
+
+def format_info_with_icon(text: str, icon: str = "📊") -> str:
+    """Simple helper function for consistent formatting."""
+    return f"{icon} {text}"
 
 class MonitoringTools(ProxmoxTool):
     """Advanced monitoring tools for LLM-driven automation.
