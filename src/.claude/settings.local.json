@@ -56,7 +56,13 @@
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(ls:*)",
-      "Bash(rmdir:*)"
+      "Bash(rmdir:*)",
+      "Bash(cp:*)",
+      "Bash(grep:*)",
+      "Bash(export PROXMOX_MCP_CONFIG=\"config/config.json\")",
+      "Bash(./scripts/setup/docker-setup.sh:*)",
+      "Bash(export PROXMOX_MCP_CONFIG=\"/Users/jacques/DevFolder/ProxmoxMCP/src/config/config.json\")",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }

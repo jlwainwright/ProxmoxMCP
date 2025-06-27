@@ -21,7 +21,7 @@ import os
 import sys
 import signal
 import anyio
-from typing import Optional, List, Annotated
+from typing import Optional, List, Annotated, Dict
 
 from mcp.server.fastmcp import FastMCP
 from mcp.server.fastmcp.tools import Tool
