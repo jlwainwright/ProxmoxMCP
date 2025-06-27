@@ -982,29 +982,70 @@ A default client is pre-registered for testing:
 
 See [AUTHORIZATION.md](AUTHORIZATION.md) for complete security documentation.
 
+## 🐳 Docker Deployment
+
+ProxmoxMCP supports containerized deployment with Docker and Docker Compose for both development and production environments.
+
+### Quick Docker Start
+
+```bash
+# Clone and setup
+git clone https://github.com/canvrno/ProxmoxMCP.git
+cd ProxmoxMCP/src
+
+# Development deployment
+./scripts/setup/docker-setup.sh deploy --mode development
+
+# Production deployment with monitoring
+./scripts/setup/docker-setup.sh deploy --mode production
+```
+
+### Docker Services
+
+| Service | Description | Port | Purpose |
+|---------|-------------|------|---------|
+| **proxmox-mcp** | Main MCP server | 8080 | Core application |
+| **redis** | Cache & sessions | 6379 | OAuth session storage |
+| **prometheus** | Metrics collection | 9090 | Performance monitoring |
+| **grafana** | Dashboards | 3000 | Visualization |
+| **nginx** | Reverse proxy | 80/443 | SSL termination (optional) |
+
+### Deployment Modes
+
+- **🔧 Development**: Live reloading, debug logging
+- **🚀 Production**: Full monitoring stack, health checks
+- **🌐 Production + Proxy**: Nginx reverse proxy with SSL
+
+For complete Docker deployment instructions, see [**Docker Deployment Guide**](src/docs/DOCKER_DEPLOYMENT.md).
+
 ## 📁 Project Structure
 
 ```
 proxmox-mcp/
 ├── src/
-│   └── proxmox_mcp/
-│       ├── server.py          # Main MCP server implementation
-│       ├── auth/              # OAuth 2.1 authorization module
-│       │   ├── models.py      # OAuth data models
-│       │   ├── middleware.py  # Token validation middleware
-│       │   ├── server.py      # Authorization server
-│       │   └── exceptions.py  # Auth-specific exceptions
-│       ├── config/            # Configuration handling
-│       ├── core/              # Core functionality
-│       ├── formatting/        # Output formatting and themes
-│       ├── tools/             # Tool implementations
-│       │   └── console/       # VM console operations
-│       └── utils/             # Utilities (auth, logging)
-├── tests/                     # Test suite
-├── config-stdio.json         # Stdio mode configuration example
-├── config-http-auth.json     # HTTP with OAuth configuration example
-├── AUTHORIZATION.md           # Complete authorization documentation
+│   ├── proxmox_mcp/           # Core Python package
+│   │   ├── server.py          # Main MCP server implementation
+│   │   ├── auth/              # OAuth 2.1 authorization module
+│   │   ├── config/            # Configuration handling
+│   │   ├── core/              # Core functionality
+│   │   ├── formatting/        # Output formatting and themes
+│   │   ├── tools/             # Tool implementations
+│   │   └── utils/             # Utilities (auth, logging)
+│   ├── config/                # Configuration files
+│   │   ├── examples/          # Example configurations
+│   │   ├── prometheus.yml     # Metrics configuration
+│   │   └── nginx/             # Proxy configuration
+│   ├── docs/                  # Documentation
+│   │   ├── DOCKER_DEPLOYMENT.md  # Docker guide
+│   │   ├── SECURITY.md        # Security documentation
+│   │   └── api/               # API documentation
+│   ├── examples/              # Demo scripts and tutorials
+│   ├── tests/                 # Test suite
+│   ├── scripts/               # Setup and maintenance scripts
+│   ├── Dockerfile             # Container definition
+│   └── docker-compose.yml     # Multi-service deployment
 ├── pyproject.toml            # Project metadata and dependencies
+├── README.md                 # This file
 └── LICENSE                   # MIT License
 ```
 

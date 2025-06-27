@@ -41,7 +41,22 @@
       "Bash(pip install:*)",
       "Bash(PYTHONPATH=/Users/jacques/DevFolder/ProxmoxMCP/src python -c \"from proxmox_mcp.tools.monitoring import MonitoringTools; print('Import successful')\")",
       "Bash(PYTHONPATH=/Users/jacques/DevFolder/ProxmoxMCP/src python -c \"from proxmox_mcp.tools.monitoring import MonitoringTools; from proxmox_mcp.tools.backup import BackupTools; print('Import successful')\")",
-      "Bash(PYTHONPATH=/Users/jacques/DevFolder/ProxmoxMCP/src PROXMOX_MCP_CONFIG=/Users/jacques/DevFolder/ProxmoxMCP/config.json python -c \"from proxmox_mcp.server import ProxmoxMCPServer; print('Server import successful')\")"
+      "Bash(PYTHONPATH=/Users/jacques/DevFolder/ProxmoxMCP/src PROXMOX_MCP_CONFIG=/Users/jacques/DevFolder/ProxmoxMCP/config.json python -c \"from proxmox_mcp.server import ProxmoxMCPServer; print('Server import successful')\")",
+      "Bash(git -C /Users/jacques/DevFolder/ProxmoxMCP branch -a)",
+      "Bash(git -C /Users/jacques/DevFolder/ProxmoxMCP log --oneline --graph --all --decorate -20)",
+      "mcp__sequential__sequentialthinking",
+      "Bash(find:*)",
+      "Bash(nmap:*)",
+      "Bash(arp:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:192.168.0.15)",
+      "mcp__iterm-mcp__read_terminal_output",
+      "mcp__iterm-mcp__write_to_terminal",
+      "mcp__iterm-mcp__send_control_character",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(ls:*)",
+      "Bash(rmdir:*)"
     ],
     "deny": []
   }

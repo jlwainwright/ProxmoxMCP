@@ -1,0 +1,73 @@
+# ProxmoxMCP Development Docker Compose
+# Lightweight setup for development and testing
+
+version: '3.8'
+
+services:
+  # ProxmoxMCP Server - Development mode
+  proxmox-mcp-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development  # Use multi-stage build if available
+    container_name: proxmox-mcp-dev
+    restart: "no"  # Don't restart automatically in dev
+    environment:
+      - PROXMOX_MCP_CONFIG=/app/config/config-dev.json
+      - PYTHONPATH=/app/src
+      - DEBUG=1
+      - LOG_LEVEL=DEBUG
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount source code for development
+      - .:/app
+      - ./config/examples/config.json:/app/config/config-dev.json:ro
+      - dev-logs:/app/logs
+    networks:
+      - proxmox-dev-network
+    command: ["python", "-m", "proxmox_mcp.server", "--reload"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import proxmox_mcp; print('OK')"]
+      interval: 60s
+      timeout: 15s
+      retries: 2
+      start_period: 10s
+
+  # Redis - Development cache
+  redis-dev:
+    image: redis:7.2-alpine
+    container_name: proxmox-mcp-redis-dev
+    restart: "no"
+    command: redis-server --appendonly no  # No persistence in dev
+    ports:
+      - "6380:6379"  # Different port to avoid conflicts
+    networks:
+      - proxmox-dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 2
+
+  # Development tools container
+  dev-tools:
+    image: python:3.11-slim
+    container_name: proxmox-mcp-dev-tools
+    restart: "no"
+    volumes:
+      - .:/app
+    working_dir: /app
+    networks:
+      - proxmox-dev-network
+    command: ["tail", "-f", "/dev/null"]  # Keep running for exec commands
+    profiles:
+      - tools  # Start with: docker-compose --profile tools up
+
+volumes:
+  dev-logs:
+    driver: local
+
+networks:
+  proxmox-dev-network:
+    driver: bridge
