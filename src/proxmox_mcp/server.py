@@ -48,6 +48,18 @@ from .tools.definitions import (
     RESTART_VM_DESC,
     SUSPEND_VM_DESC,
     GET_VM_STATUS_DESC,
+    DETECT_VM_OS_DESC,
+    GET_VM_SYSTEM_INFO_DESC,
+    LIST_VM_SERVICES_DESC,
+    GET_VM_NETWORK_CONFIG_DESC,
+    DETECT_CONTAINER_RUNTIME_DESC,
+    LIST_DOCKER_CONTAINERS_DESC,
+    INSPECT_DOCKER_CONTAINER_DESC,
+    MANAGE_DOCKER_CONTAINER_DESC,
+    DISCOVER_WEB_SERVICES_DESC,
+    DISCOVER_DATABASES_DESC,
+    DISCOVER_API_ENDPOINTS_DESC,
+    ANALYZE_APPLICATION_STACK_DESC,
     GET_CONTAINERS_DESC,
     GET_STORAGE_DESC,
     GET_CLUSTER_STATUS_DESC
@@ -200,6 +212,108 @@ class ProxmoxMCPServer:
             proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
         ):
             return self.vm_tools.get_vm_status(node, vmid, proxmox_node)
+
+        # Phase A: Deep Inspection tools
+        @self.mcp.tool(description=DETECT_VM_OS_DESC)
+        async def detect_vm_os(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.detect_vm_os(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=GET_VM_SYSTEM_INFO_DESC)
+        async def get_vm_system_info(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.get_vm_system_info(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=LIST_VM_SERVICES_DESC)
+        async def list_vm_services(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.list_vm_services(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=GET_VM_NETWORK_CONFIG_DESC)
+        async def get_vm_network_config(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.get_vm_network_config(node, vmid, proxmox_node)
+
+        # Phase B: Container Runtime Detection tools
+        @self.mcp.tool(description=DETECT_CONTAINER_RUNTIME_DESC)
+        async def detect_container_runtime(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.detect_container_runtime(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=LIST_DOCKER_CONTAINERS_DESC)
+        async def list_docker_containers(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.list_docker_containers(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=INSPECT_DOCKER_CONTAINER_DESC)
+        async def inspect_docker_container(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            container_name: Annotated[str, Field(description="Container name or ID to inspect")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.inspect_docker_container(node, vmid, container_name, proxmox_node)
+
+        @self.mcp.tool(description=MANAGE_DOCKER_CONTAINER_DESC)
+        async def manage_docker_container(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            container_name: Annotated[str, Field(description="Container name or ID to manage")],
+            operation: Annotated[str, Field(description="Operation to perform ('start', 'stop', 'restart')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.manage_docker_container(node, vmid, container_name, operation, proxmox_node)
+
+        # Phase C: Application Discovery tools
+        @self.mcp.tool(description=DISCOVER_WEB_SERVICES_DESC)
+        async def discover_web_services(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.discover_web_services(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=DISCOVER_DATABASES_DESC)
+        async def discover_databases(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.discover_databases(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=DISCOVER_API_ENDPOINTS_DESC)
+        async def discover_api_endpoints(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.discover_api_endpoints(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=ANALYZE_APPLICATION_STACK_DESC)
+        async def analyze_application_stack(
+            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return await self.vm_tools.analyze_application_stack(node, vmid, proxmox_node)
 
         # Storage tools
         @self.mcp.tool(description=GET_STORAGE_DESC)
@@ -369,6 +483,105 @@ class ProxmoxMCPServer:
                         parameters.get("vmid")
                     )
                     
+                elif tool_name == "detect_vm_os":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:vms:inspect")
+                    result = await self.vm_tools.detect_vm_os(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "get_vm_system_info":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:vms:inspect")
+                    result = await self.vm_tools.get_vm_system_info(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "list_vm_services":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:vms:inspect")
+                    result = await self.vm_tools.list_vm_services(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "get_vm_network_config":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:vms:inspect")
+                    result = await self.vm_tools.get_vm_network_config(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "detect_container_runtime":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:containers:manage")
+                    result = await self.vm_tools.detect_container_runtime(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "list_docker_containers":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:containers:manage")
+                    result = await self.vm_tools.list_docker_containers(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "inspect_docker_container":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:containers:manage")
+                    result = await self.vm_tools.inspect_docker_container(
+                        parameters.get("node"),
+                        parameters.get("vmid"),
+                        parameters.get("container_name")
+                    )
+                    
+                elif tool_name == "manage_docker_container":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:containers:manage")
+                    result = await self.vm_tools.manage_docker_container(
+                        parameters.get("node"),
+                        parameters.get("vmid"),
+                        parameters.get("container_name"),
+                        parameters.get("operation")
+                    )
+                    
+                elif tool_name == "discover_web_services":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:applications:discover")
+                    result = await self.vm_tools.discover_web_services(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "discover_databases":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:applications:discover")
+                    result = await self.vm_tools.discover_databases(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "discover_api_endpoints":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:applications:discover")
+                    result = await self.vm_tools.discover_api_endpoints(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
+                elif tool_name == "analyze_application_stack":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:applications:discover")
+                    result = await self.vm_tools.analyze_application_stack(
+                        parameters.get("node"),
+                        parameters.get("vmid")
+                    )
+                    
                 elif tool_name == "get_storage":
                     if self.auth_middleware and hasattr(request.state, 'token_info'):
                         self.auth_middleware.check_scope(request.state.token_info, "proxmox:storage:read")
@@ -438,6 +651,66 @@ class ProxmoxMCPServer:
                     "name": "get_vm_status",
                     "description": GET_VM_STATUS_DESC,
                     "required_scope": "proxmox:vms:read"
+                },
+                {
+                    "name": "detect_vm_os",
+                    "description": DETECT_VM_OS_DESC,
+                    "required_scope": "proxmox:vms:inspect"
+                },
+                {
+                    "name": "get_vm_system_info",
+                    "description": GET_VM_SYSTEM_INFO_DESC,
+                    "required_scope": "proxmox:vms:inspect"
+                },
+                {
+                    "name": "list_vm_services",
+                    "description": LIST_VM_SERVICES_DESC,
+                    "required_scope": "proxmox:vms:inspect"
+                },
+                {
+                    "name": "get_vm_network_config",
+                    "description": GET_VM_NETWORK_CONFIG_DESC,
+                    "required_scope": "proxmox:vms:inspect"
+                },
+                {
+                    "name": "detect_container_runtime",
+                    "description": DETECT_CONTAINER_RUNTIME_DESC,
+                    "required_scope": "proxmox:containers:manage"
+                },
+                {
+                    "name": "list_docker_containers",
+                    "description": LIST_DOCKER_CONTAINERS_DESC,
+                    "required_scope": "proxmox:containers:manage"
+                },
+                {
+                    "name": "inspect_docker_container",
+                    "description": INSPECT_DOCKER_CONTAINER_DESC,
+                    "required_scope": "proxmox:containers:manage"
+                },
+                {
+                    "name": "manage_docker_container",
+                    "description": MANAGE_DOCKER_CONTAINER_DESC,
+                    "required_scope": "proxmox:containers:manage"
+                },
+                {
+                    "name": "discover_web_services",
+                    "description": DISCOVER_WEB_SERVICES_DESC,
+                    "required_scope": "proxmox:applications:discover"
+                },
+                {
+                    "name": "discover_databases",
+                    "description": DISCOVER_DATABASES_DESC,
+                    "required_scope": "proxmox:applications:discover"
+                },
+                {
+                    "name": "discover_api_endpoints",
+                    "description": DISCOVER_API_ENDPOINTS_DESC,
+                    "required_scope": "proxmox:applications:discover"
+                },
+                {
+                    "name": "analyze_application_stack",
+                    "description": ANALYZE_APPLICATION_STACK_DESC,
+                    "required_scope": "proxmox:applications:discover"
                 },
                 {
                     "name": "get_storage",

@@ -96,6 +96,30 @@ class ProxmoxTool:
             formatted = ProxmoxTemplates.cluster_status(data)
         elif resource_type == "vm_status":
             formatted = ProxmoxTemplates.vm_status(data)
+        elif resource_type == "os_detection":
+            formatted = ProxmoxTemplates.os_detection(data)
+        elif resource_type == "system_info":
+            formatted = ProxmoxTemplates.system_info(data)
+        elif resource_type == "services_info":
+            formatted = ProxmoxTemplates.services_info(data)
+        elif resource_type == "network_info":
+            formatted = ProxmoxTemplates.network_info(data)
+        elif resource_type == "container_runtime":
+            formatted = ProxmoxTemplates.container_runtime(data)
+        elif resource_type == "docker_containers":
+            formatted = ProxmoxTemplates.docker_containers(data)
+        elif resource_type == "container_inspect":
+            formatted = ProxmoxTemplates.container_inspect(data)
+        elif resource_type == "container_management":
+            formatted = ProxmoxTemplates.container_management(data)
+        elif resource_type == "web_services":
+            formatted = ProxmoxTemplates.web_services(data)
+        elif resource_type == "databases":
+            formatted = ProxmoxTemplates.databases(data)
+        elif resource_type == "api_endpoints":
+            formatted = ProxmoxTemplates.api_endpoints(data)
+        elif resource_type == "application_stack":
+            formatted = ProxmoxTemplates.application_stack(data)
         else:
             # Fallback to JSON formatting for unknown types
             import json
