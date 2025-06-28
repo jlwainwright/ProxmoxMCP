@@ -282,6 +282,8 @@ When authorization is enabled, the following scopes control access:
 - ⚡ `proxmox:vms:execute` - Execute commands in VMs
 - 💾 `proxmox:storage:read` - View storage information
 - ⚙️ `proxmox:cluster:read` - View cluster status
+- 📸 `proxmox:snapshots:read` - List and view VM snapshots
+- 📸 `proxmox:snapshots:manage` - Create, delete, and rollback VM snapshots
 
 ### Proxmox API Token Setup
 1. Log into your Proxmox web interface
@@ -781,6 +783,105 @@ Execute a command in a VM's console using QEMU Guest Agent.
   - Returns error if VM is not found
   - Returns error if command execution fails
   - Includes command output even if command returns non-zero exit code
+
+### create_vm_snapshot
+Create a snapshot of a virtual machine.
+
+- Parameters:
+  - `node` (string, required): Host node name where the VM is located
+  - `vmid` (string, required): VM ID number
+  - `snapname` (string, required): Name for the new snapshot (alphanumeric, no spaces)
+  - `description` (string, optional): Optional description for the snapshot
+- Example Response:
+  ```
+  📸 VM Snapshot Creation
+    • VM ID: 100
+    • Node: pve1
+    • Snapshot Name: pre-update
+    • Description: Before system updates
+    • Task ID: UPID:pve1:00001234:snapshot_task
+    • Status: Snapshot creation initiated
+  ```
+- Requirements:
+  - VM must be accessible on the specified node
+  - Sufficient storage space for snapshot
+  - Valid snapshot name (no special characters or spaces)
+
+### list_vm_snapshots
+List all snapshots for a specific virtual machine.
+
+- Parameters:
+  - `node` (string, required): Host node name where the VM is located
+  - `vmid` (string, required): VM ID number
+- Example Response:
+  ```
+  📸 VM Snapshots: 100
+    • Node: pve1
+    • Total Snapshots: 3
+
+  📋 Snapshot List:
+   1. pre-update-2024
+      • Created: 2024-01-15 14:30:22
+      • Description: Before critical updates
+      • Parent: current
+      
+   2. stable-config
+      • Created: 2024-01-10 09:15:10
+      • Description: Working configuration
+      • Parent: current
+  ```
+
+### delete_vm_snapshot
+Delete a specific snapshot from a virtual machine.
+
+- Parameters:
+  - `node` (string, required): Host node name where the VM is located
+  - `vmid` (string, required): VM ID number
+  - `snapname` (string, required): Name of the snapshot to delete
+  - `force` (boolean, optional): Force deletion even if snapshot has children (default: false)
+- Example Response:
+  ```
+  🗑️ VM Snapshot Deletion
+    • VM ID: 100
+    • Node: pve1
+    • Snapshot: old-snapshot
+    • Force Mode: No
+    • Task ID: UPID:pve1:00001235:delete_task
+    • Status: Deletion initiated
+
+  ⚠️ Warning: This operation is irreversible!
+  ```
+- Error Handling:
+  - Returns error if snapshot does not exist
+  - Returns error if snapshot has children and force=false
+  - Includes list of available snapshots if target not found
+
+### rollback_vm_snapshot
+Rollback a virtual machine to a specific snapshot.
+
+- Parameters:
+  - `node` (string, required): Host node name where the VM is located
+  - `vmid` (string, required): VM ID number
+  - `snapname` (string, required): Name of the snapshot to rollback to
+- Example Response:
+  ```
+  ⏪ VM Snapshot Rollback
+    • VM ID: 100
+    • Node: pve1
+    • Target Snapshot: stable-config
+    • Snapshot Date: 2024-01-10 09:15:10
+    • Description: Working configuration
+    • Task ID: UPID:pve1:00001236:rollback_task
+    • Status: Rollback initiated
+
+  ⚠️ Important:
+     • All changes made since this snapshot will be LOST
+     • This operation cannot be undone
+  ```
+- Requirements:
+  - Target snapshot must exist
+  - VM will be stopped during rollback if currently running
+  - All data since snapshot creation will be permanently lost
 
 ## 👨‍💻 Development
 

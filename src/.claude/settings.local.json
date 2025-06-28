@@ -62,7 +62,8 @@
       "Bash(export PROXMOX_MCP_CONFIG=\"config/config.json\")",
       "Bash(./scripts/setup/docker-setup.sh:*)",
       "Bash(export PROXMOX_MCP_CONFIG=\"/Users/jacques/DevFolder/ProxmoxMCP/src/config/config.json\")",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(pip show:*)"
     ],
     "deny": []
   }

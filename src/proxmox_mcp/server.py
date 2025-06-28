@@ -40,6 +40,7 @@ from .tools.storage import StorageTools
 from .tools.cluster import ClusterTools
 from .tools.monitoring import MonitoringTools
 from .tools.backup import BackupTools
+from .tools.snapshots import SnapshotTools
 from .tools.definitions import (
     GET_NODES_DESC,
     GET_NODE_STATUS_DESC,
@@ -72,7 +73,11 @@ from .tools.definitions import (
     CREATE_INTELLIGENT_BACKUP_SCHEDULE_DESC,
     IMPLEMENT_BACKUP_VERIFICATION_DESC,
     CREATE_DISASTER_RECOVERY_PLAN_DESC,
-    GENERATE_BACKUP_COMPLIANCE_REPORT_DESC
+    GENERATE_BACKUP_COMPLIANCE_REPORT_DESC,
+    CREATE_VM_SNAPSHOT_DESC,
+    LIST_VM_SNAPSHOTS_DESC,
+    DELETE_VM_SNAPSHOT_DESC,
+    ROLLBACK_VM_SNAPSHOT_DESC
 )
 
 class ProxmoxMCPServer:
@@ -100,6 +105,7 @@ class ProxmoxMCPServer:
         self.cluster_tools = ClusterTools(self.node_manager)
         self.monitoring_tools = MonitoringTools(self.node_manager)
         self.backup_tools = BackupTools(self.node_manager)
+        self.snapshot_tools = SnapshotTools(self.node_manager)
         
         # Initialize MCP server
         self.mcp = FastMCP("ProxmoxMCP")
@@ -413,6 +419,44 @@ class ProxmoxMCPServer:
             proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
         ):
             return self.backup_tools.generate_backup_compliance_report(compliance_framework, reporting_period, include_recommendations, proxmox_node)
+
+        # Snapshot Management tools
+        @self.mcp.tool(description=CREATE_VM_SNAPSHOT_DESC)
+        def create_vm_snapshot(
+            node: Annotated[str, Field(description="Host node name where the VM is located (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            snapname: Annotated[str, Field(description="Name for the new snapshot (alphanumeric, no spaces)")],
+            description: Annotated[str, Field(description="Optional description for the snapshot")] = None,
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.snapshot_tools.create_vm_snapshot(node, vmid, snapname, description, proxmox_node)
+
+        @self.mcp.tool(description=LIST_VM_SNAPSHOTS_DESC)
+        def list_vm_snapshots(
+            node: Annotated[str, Field(description="Host node name where the VM is located (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.snapshot_tools.list_vm_snapshots(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=DELETE_VM_SNAPSHOT_DESC)
+        def delete_vm_snapshot(
+            node: Annotated[str, Field(description="Host node name where the VM is located (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            snapname: Annotated[str, Field(description="Name of the snapshot to delete")],
+            force: Annotated[bool, Field(description="Force deletion even if snapshot has children")] = False,
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.snapshot_tools.delete_vm_snapshot(node, vmid, snapname, force, proxmox_node)
+
+        @self.mcp.tool(description=ROLLBACK_VM_SNAPSHOT_DESC)
+        def rollback_vm_snapshot(
+            node: Annotated[str, Field(description="Host node name where the VM is located (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
+            snapname: Annotated[str, Field(description="Name of the snapshot to rollback to")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.snapshot_tools.rollback_vm_snapshot(node, vmid, snapname, proxmox_node)
 
     def start(self) -> None:
         """Start the MCP server with configured transport.
@@ -758,6 +802,48 @@ class ProxmoxMCPServer:
                         parameters.get("proxmox_node")
                     )
                     
+                # Snapshot Management tools
+                elif tool_name == "create_vm_snapshot":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:snapshots:manage")
+                    result = self.snapshot_tools.create_vm_snapshot(
+                        parameters.get("node"),
+                        parameters.get("vmid"),
+                        parameters.get("snapname"),
+                        parameters.get("description"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "list_vm_snapshots":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:snapshots:read")
+                    result = self.snapshot_tools.list_vm_snapshots(
+                        parameters.get("node"),
+                        parameters.get("vmid"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "delete_vm_snapshot":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:snapshots:manage")
+                    result = self.snapshot_tools.delete_vm_snapshot(
+                        parameters.get("node"),
+                        parameters.get("vmid"),
+                        parameters.get("snapname"),
+                        parameters.get("force", False),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "rollback_vm_snapshot":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:snapshots:manage")
+                    result = self.snapshot_tools.rollback_vm_snapshot(
+                        parameters.get("node"),
+                        parameters.get("vmid"),
+                        parameters.get("snapname"),
+                        parameters.get("proxmox_node")
+                    )
+                    
                 else:
                     raise HTTPException(status_code=404, detail=f"Tool not found: {tool_name}")
                 
@@ -929,6 +1015,27 @@ class ProxmoxMCPServer:
                     "name": "generate_backup_compliance_report",
                     "description": GENERATE_BACKUP_COMPLIANCE_REPORT_DESC,
                     "required_scope": "proxmox:backup:read"
+                },
+                # Snapshot Management tools
+                {
+                    "name": "create_vm_snapshot",
+                    "description": CREATE_VM_SNAPSHOT_DESC,
+                    "required_scope": "proxmox:snapshots:manage"
+                },
+                {
+                    "name": "list_vm_snapshots",
+                    "description": LIST_VM_SNAPSHOTS_DESC,
+                    "required_scope": "proxmox:snapshots:read"
+                },
+                {
+                    "name": "delete_vm_snapshot",
+                    "description": DELETE_VM_SNAPSHOT_DESC,
+                    "required_scope": "proxmox:snapshots:manage"
+                },
+                {
+                    "name": "rollback_vm_snapshot",
+                    "description": ROLLBACK_VM_SNAPSHOT_DESC,
+                    "required_scope": "proxmox:snapshots:manage"
                 }
             ]
             return {"tools": tools}

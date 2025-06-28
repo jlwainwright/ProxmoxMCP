@@ -446,3 +446,70 @@ proxmox_node - Optional node to query for multi-node setups
 
 Example:
 {"compliance_assessment": {"overall_score": 95.0}, "backup_metrics": {"success_rate": 98.5}, "recommendations": [...], "critical_issues": 0}"""
+
+# =============================================================================
+# Snapshot Management Tool Descriptions
+# =============================================================================
+
+CREATE_VM_SNAPSHOT_DESC = """Create a snapshot of a virtual machine.
+
+Creates a new snapshot with the specified name and optional description.
+The snapshot captures the current state of the VM including memory
+(if the VM is running) and disk state.
+
+Parameters:
+node* - Host node name where the VM is located (e.g. 'pve1', 'proxmox-node2')
+vmid* - VM ID number (e.g. '100', '101') 
+snapname* - Name for the new snapshot (alphanumeric, no spaces)
+description - Optional description for the snapshot
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+create_vm_snapshot("pve1", "100", "pre-update", "Before system updates")"""
+
+LIST_VM_SNAPSHOTS_DESC = """List all snapshots for a specific virtual machine.
+
+Retrieves comprehensive information about all snapshots including:
+- Snapshot names and descriptions
+- Creation timestamps
+- Parent-child relationships (snapshot tree)
+- Disk usage and size information
+- Current snapshot status
+
+Parameters:
+node* - Host node name where the VM is located (e.g. 'pve1', 'proxmox-node2')
+vmid* - VM ID number (e.g. '100', '101')
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+list_vm_snapshots("pve1", "100")"""
+
+DELETE_VM_SNAPSHOT_DESC = """Delete a specific snapshot from a virtual machine.
+
+Safely removes the specified snapshot and merges its data into the parent.
+This operation is irreversible and may take time depending on snapshot size.
+
+Parameters:
+node* - Host node name where the VM is located (e.g. 'pve1', 'proxmox-node2')
+vmid* - VM ID number (e.g. '100', '101')
+snapname* - Name of the snapshot to delete
+force - Force deletion even if snapshot has children (default: false)
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+delete_vm_snapshot("pve1", "100", "old-snapshot")"""
+
+ROLLBACK_VM_SNAPSHOT_DESC = """Rollback a virtual machine to a specific snapshot.
+
+Restores the VM to the exact state it was in when the snapshot was created.
+This includes both disk state and configuration. Any changes made since
+the snapshot was created will be lost.
+
+Parameters:
+node* - Host node name where the VM is located (e.g. 'pve1', 'proxmox-node2')
+vmid* - VM ID number (e.g. '100', '101')
+snapname* - Name of the snapshot to rollback to
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+rollback_vm_snapshot("pve1", "100", "known-good-state")"""

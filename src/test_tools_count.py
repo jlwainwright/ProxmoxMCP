@@ -26,7 +26,7 @@ async def test_mcp_tools():
         
         # Get list of registered tools
         tools_list = await mcp.list_tools()
-        tools = tools_list.tools if hasattr(tools_list, 'tools') else []
+        tools = tools_list if isinstance(tools_list, list) else []
         
         print(f"\n📊 MCP Server Statistics:")
         print(f"   Tools registered: {len(tools)}")
@@ -41,7 +41,8 @@ async def test_mcp_tools():
             "Storage Management": [],
             "Cluster Management": [],
             "Monitoring Tools": [],
-            "Backup & Recovery": []
+            "Backup & Recovery": [],
+            "Other": []
         }
         
         print(f"\n🛠️  Registered MCP Tools:")
