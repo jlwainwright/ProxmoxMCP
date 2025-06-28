@@ -284,6 +284,8 @@ When authorization is enabled, the following scopes control access:
 - ⚙️ `proxmox:cluster:read` - View cluster status
 - 📸 `proxmox:snapshots:read` - List and view VM snapshots
 - 📸 `proxmox:snapshots:manage` - Create, delete, and rollback VM snapshots
+- 📦 `proxmox:containers:read` - List and view LXC container information
+- 📦 `proxmox:containers:control` - Start, stop, and manage LXC containers
 
 ### Proxmox API Token Setup
 1. Log into your Proxmox web interface
@@ -882,6 +884,106 @@ Rollback a virtual machine to a specific snapshot.
   - Target snapshot must exist
   - VM will be stopped during rollback if currently running
   - All data since snapshot creation will be permanently lost
+
+### get_containers
+List all LXC containers across the cluster with their status and configuration.
+
+- Parameters:
+  - `proxmox_node` (string, optional): Proxmox instance to query for multi-node setups
+- Example Response:
+  ```
+  📦 LXC Containers
+    • Total Containers: 3
+    • Cluster-wide Status: 2 running, 1 stopped
+
+  📋 Container List:
+
+  🖥️ Node: pve1
+     🟢 CT 200 - web-server
+        • Status: running
+        • Template: ubuntu-22.04
+        • CPU: 15.2% (2 cores)
+        • Memory: 512.0 MB / 2048.0 MB
+        • Disk: 1.5 GB / 20.0 GB
+        • Uptime: 1d 5h 30m
+  ```
+- Requirements:
+  - Access to Proxmox cluster resources
+  - OAuth scope: `proxmox:containers:read`
+
+### start_container
+Start an LXC container.
+
+- Parameters:
+  - `node` (string, required): Host node name where the container is located
+  - `vmid` (string, required): Container ID number
+  - `proxmox_node` (string, optional): Proxmox instance to query
+- Example Response:
+  ```
+  🚀 Container Start Operation
+    • Container ID: 200
+    • Node: pve1
+    • Previous Status: stopped
+    • Operation: START
+    • Task ID: UPID:pve1:00001234:start_task
+    • Status: Start operation initiated
+
+  ⏳ The container is now starting up. This typically takes 10-30 seconds
+  ```
+- Requirements:
+  - Container must exist and be in stopped state
+  - OAuth scope: `proxmox:containers:control`
+
+### stop_container
+Stop an LXC container.
+
+- Parameters:
+  - `node` (string, required): Host node name where the container is located
+  - `vmid` (string, required): Container ID number
+  - `proxmox_node` (string, optional): Proxmox instance to query
+- Example Response:
+  ```
+  🛑 Container Stop Operation
+    • Container ID: 200
+    • Node: pve1
+    • Previous Status: running
+    • Operation: STOP
+    • Task ID: UPID:pve1:00001235:stop_task
+    • Status: Stop operation initiated
+
+  ⏳ The container is now shutting down gracefully.
+  ```
+- Requirements:
+  - Container must exist and be in running state
+  - OAuth scope: `proxmox:containers:control`
+
+### get_container_status
+Get detailed status information for a specific LXC container.
+
+- Parameters:
+  - `node` (string, required): Host node name where the container is located
+  - `vmid` (string, required): Container ID number
+  - `proxmox_node` (string, optional): Proxmox instance to query
+- Example Response:
+  ```
+  🟢 Container Status: CT 200
+    • Name: web-server
+    • Node: pve1
+    • Status: RUNNING
+    • Uptime: 1d 5h 30m
+
+  📊 Resource Usage:
+    • CPU: 15.2% (2 cores allocated)
+    • Memory: 512.0 MB / 2048.0 MB (25.0%)
+    • Disk: 1.5 GB / 20.0 GB (7.5%)
+
+  ⚙️ Configuration:
+    • Template: ubuntu-22.04-standard_22.04-1_amd64.tar.xz
+    • Description: Web server container
+  ```
+- Requirements:
+  - Container must exist on the specified node
+  - OAuth scope: `proxmox:containers:read`
 
 ## 👨‍💻 Development
 

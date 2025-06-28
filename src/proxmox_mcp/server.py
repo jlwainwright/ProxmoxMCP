@@ -41,6 +41,7 @@ from .tools.cluster import ClusterTools
 from .tools.monitoring import MonitoringTools
 from .tools.backup import BackupTools
 from .tools.snapshots import SnapshotTools
+from .tools.containers import ContainerTools
 from .tools.definitions import (
     GET_NODES_DESC,
     GET_NODE_STATUS_DESC,
@@ -64,6 +65,9 @@ from .tools.definitions import (
     DISCOVER_API_ENDPOINTS_DESC,
     ANALYZE_APPLICATION_STACK_DESC,
     GET_CONTAINERS_DESC,
+    START_CONTAINER_DESC,
+    STOP_CONTAINER_DESC,
+    GET_CONTAINER_STATUS_DESC,
     GET_STORAGE_DESC,
     GET_CLUSTER_STATUS_DESC,
     GENERATE_GRAFANA_DASHBOARD_DESC,
@@ -106,6 +110,7 @@ class ProxmoxMCPServer:
         self.monitoring_tools = MonitoringTools(self.node_manager)
         self.backup_tools = BackupTools(self.node_manager)
         self.snapshot_tools = SnapshotTools(self.node_manager)
+        self.container_tools = ContainerTools(self.node_manager)
         
         # Initialize MCP server
         self.mcp = FastMCP("ProxmoxMCP")
@@ -339,6 +344,37 @@ class ProxmoxMCPServer:
             proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
         ):
             return self.storage_tools.get_storage(proxmox_node)
+
+        # LXC Container Management tools
+        @self.mcp.tool(description=GET_CONTAINERS_DESC)
+        def get_containers(
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.container_tools.get_containers(proxmox_node)
+
+        @self.mcp.tool(description=START_CONTAINER_DESC)
+        def start_container(
+            node: Annotated[str, Field(description="Host node name where the container is located (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="Container ID number (e.g. '200', '201')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.container_tools.start_container(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=STOP_CONTAINER_DESC)
+        def stop_container(
+            node: Annotated[str, Field(description="Host node name where the container is located (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="Container ID number (e.g. '200', '201')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.container_tools.stop_container(node, vmid, proxmox_node)
+
+        @self.mcp.tool(description=GET_CONTAINER_STATUS_DESC)
+        def get_container_status(
+            node: Annotated[str, Field(description="Host node name where the container is located (e.g. 'pve1', 'proxmox-node2')")],
+            vmid: Annotated[str, Field(description="Container ID number (e.g. '200', '201')")],
+            proxmox_node: Annotated[str, Field(description="Proxmox instance to query")] = None
+        ):
+            return self.container_tools.get_container_status(node, vmid, proxmox_node)
 
         # Cluster tools
         @self.mcp.tool(description=GET_CLUSTER_STATUS_DESC)
@@ -716,6 +752,41 @@ class ProxmoxMCPServer:
                         self.auth_middleware.check_scope(request.state.token_info, "proxmox:storage:read")
                     result = self.storage_tools.get_storage()
                     
+                # LXC Container Management tools
+                elif tool_name == "get_containers":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:containers:read")
+                    result = self.container_tools.get_containers(
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "start_container":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:containers:control")
+                    result = self.container_tools.start_container(
+                        parameters.get("node"),
+                        parameters.get("vmid"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "stop_container":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:containers:control")
+                    result = self.container_tools.stop_container(
+                        parameters.get("node"),
+                        parameters.get("vmid"),
+                        parameters.get("proxmox_node")
+                    )
+                    
+                elif tool_name == "get_container_status":
+                    if self.auth_middleware and hasattr(request.state, 'token_info'):
+                        self.auth_middleware.check_scope(request.state.token_info, "proxmox:containers:read")
+                    result = self.container_tools.get_container_status(
+                        parameters.get("node"),
+                        parameters.get("vmid"),
+                        parameters.get("proxmox_node")
+                    )
+                    
                 elif tool_name == "get_cluster_status":
                     if self.auth_middleware and hasattr(request.state, 'token_info'):
                         self.auth_middleware.check_scope(request.state.token_info, "proxmox:cluster:read")
@@ -968,6 +1039,27 @@ class ProxmoxMCPServer:
                     "name": "get_storage",
                     "description": GET_STORAGE_DESC,
                     "required_scope": "proxmox:storage:read"
+                },
+                # LXC Container Management tools
+                {
+                    "name": "get_containers",
+                    "description": GET_CONTAINERS_DESC,
+                    "required_scope": "proxmox:containers:read"
+                },
+                {
+                    "name": "start_container",
+                    "description": START_CONTAINER_DESC,
+                    "required_scope": "proxmox:containers:control"
+                },
+                {
+                    "name": "stop_container",
+                    "description": STOP_CONTAINER_DESC,
+                    "required_scope": "proxmox:containers:control"
+                },
+                {
+                    "name": "get_container_status",
+                    "description": GET_CONTAINER_STATUS_DESC,
+                    "required_scope": "proxmox:containers:read"
                 },
                 {
                     "name": "get_cluster_status",

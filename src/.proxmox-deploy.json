@@ -1,0 +1,41 @@
+{
+  "project": {
+    "name": "proxmox-mcp",
+    "type": "python"
+  },
+  "environments": {
+    "production": {
+      "compose_file": "docker-compose.yml",
+      "domain": "proxmox-mcp.local",
+      "preferred_nodes": ["node1", "node2", "node3"]
+    },
+    "staging": {
+      "compose_file": "docker-compose.dev.yml",
+      "preferred_nodes": ["node1"]
+    }
+  },
+  "services": {
+    "proxmox-mcp": {
+      "port": 8080,
+      "health_check": "/health",
+      "replicas": 1
+    },
+    "redis": {
+      "port": 6379,
+      "health_check": "redis-cli ping"
+    },
+    "grafana": {
+      "port": 3000,
+      "health_check": "/api/health"
+    },
+    "prometheus": {
+      "port": 9090,
+      "health_check": "/-/healthy"
+    }
+  },
+  "cluster_strategy": {
+    "load_balancing": true,
+    "auto_failover": true,
+    "monitoring": true
+  }
+}

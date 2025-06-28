@@ -285,11 +285,68 @@ vmid* - VM ID number (e.g. '100')
 Example:
 {"technology_stack": {"programming_languages": ["Python", "JavaScript"], "frameworks_detected": ["Django", "React"], "monitoring_tools": ["Prometheus"]}, "service_components": {"web_services": "available", "databases": "available", "container_runtime": "available"}, "architecture_analysis": {"deployment_type": "containerized", "technology_diversity": "high"}}"""
 
-# Container tool descriptions
+# =============================================================================
+# LXC Container Management Tool Descriptions
+# =============================================================================
+
 GET_CONTAINERS_DESC = """List all LXC containers across the cluster with their status and configuration.
 
+Retrieves comprehensive information about all LXC containers including:
+- Container ID, name, and current status (running, stopped)
+- Resource allocation and usage (CPU, memory, disk)
+- Operating system template information
+- Node assignment and network configuration
+- Uptime and performance statistics
+
+Parameters:
+proxmox_node - Optional node to query for multi-node setups
+
 Example:
-{"vmid": "200", "name": "nginx", "status": "running", "template": "ubuntu-20.04"}"""
+{"containers": [{"vmid": "200", "name": "web-server", "status": "running", "template": "ubuntu-22.04", "node": "pve1", "cpu": "15.2%", "memory": "512MB/2GB"}]}"""
+
+START_CONTAINER_DESC = """Start an LXC container.
+
+Initiates the startup process for the specified LXC container.
+The container will boot using its configured OS template and 
+network settings.
+
+Parameters:
+node* - Host node name where the container is located (e.g. 'pve1', 'proxmox-node2')
+vmid* - Container ID number (e.g. '200', '201')
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+start_container("pve1", "200")"""
+
+STOP_CONTAINER_DESC = """Stop an LXC container.
+
+Gracefully shuts down the specified LXC container by sending
+a shutdown signal to the container's init process.
+
+Parameters:
+node* - Host node name where the container is located (e.g. 'pve1', 'proxmox-node2')
+vmid* - Container ID number (e.g. '200', '201')
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+stop_container("pve1", "200")"""
+
+GET_CONTAINER_STATUS_DESC = """Get detailed status information for a specific LXC container.
+
+Retrieves comprehensive status and configuration information including:
+- Current running state and uptime information
+- Resource usage statistics (CPU, memory, disk)
+- Network configuration and IP addresses
+- Container configuration and template details
+- Process information and system statistics
+
+Parameters:
+node* - Host node name where the container is located (e.g. 'pve1', 'proxmox-node2')
+vmid* - Container ID number (e.g. '200', '201')
+proxmox_node - Optional node to query for multi-node setups
+
+Example:
+get_container_status("pve1", "200")"""
 
 # Storage tool descriptions
 GET_STORAGE_DESC = """List storage pools across the cluster with their usage and configuration.
