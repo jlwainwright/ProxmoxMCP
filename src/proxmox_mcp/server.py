@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Main server implementation for Proxmox MCP.
 
@@ -18,12 +19,9 @@ import logging
 import os
 import sys
 import signal
-from typing import Optional, List, Annotated
 
-from mcp.server.fastmcp import FastMCP
-from mcp.server.fastmcp.tools import Tool
-from mcp.types import TextContent as Content
-from pydantic import Field
+from mcp.server import Server
+from mcp.server.stdio import StdioServerTransport
 
 from .config.loader import load_config
 from .core.logging import setup_logging
@@ -45,7 +43,7 @@ from .tools.definitions import (
 class ProxmoxMCPServer:
     """Main server class for Proxmox MCP."""
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: str = None):
         """Initialize the server.
 
         Args:
@@ -65,7 +63,11 @@ class ProxmoxMCPServer:
         self.cluster_tools = ClusterTools(self.proxmox)
         
         # Initialize MCP server
-        self.mcp = FastMCP("ProxmoxMCP")
+        self.mcp = Server(
+            "ProxmoxMCP",
+            "1.0.0",
+            capabilities={},
+        )
         self._setup_tools()
 
     def _setup_tools(self) -> None:
@@ -87,9 +89,7 @@ class ProxmoxMCPServer:
             return self.node_tools.get_nodes()
 
         @self.mcp.tool(description=GET_NODE_STATUS_DESC)
-        def get_node_status(
-            node: Annotated[str, Field(description="Name/ID of node to query (e.g. 'pve1', 'proxmox-node2')")]
-        ):
+        def get_node_status(node: str):
             return self.node_tools.get_node_status(node)
 
         # VM tools
@@ -98,11 +98,7 @@ class ProxmoxMCPServer:
             return self.vm_tools.get_vms()
 
         @self.mcp.tool(description=EXECUTE_VM_COMMAND_DESC)
-        async def execute_vm_command(
-            node: Annotated[str, Field(description="Host node name (e.g. 'pve1', 'proxmox-node2')")],
-            vmid: Annotated[str, Field(description="VM ID number (e.g. '100', '101')")],
-            command: Annotated[str, Field(description="Shell command to run (e.g. 'uname -a', 'systemctl status nginx')")]
-        ):
+        async def execute_vm_command(node: str, vmid: str, command: str):
             return await self.vm_tools.execute_command(node, vmid, command)
 
         # Storage tools
@@ -137,7 +133,8 @@ class ProxmoxMCPServer:
 
         try:
             self.logger.info("Starting MCP server...")
-            anyio.run(self.mcp.run_stdio_async)
+            transport = StdioServerTransport()
+            anyio.run(self.mcp.run, transport)
         except Exception as e:
             self.logger.error(f"Server error: {e}")
             sys.exit(1)
