@@ -1,5 +1,12 @@
 # 🚀 Proxmox Manager - Proxmox MCP Server
 
+[![CI](https://github.com/jlwainwright/ProxmoxMCP/workflows/CI/badge.svg)](https://github.com/jlwainwright/ProxmoxMCP/actions/workflows/ci.yml)
+[![Docker](https://github.com/jlwainwright/ProxmoxMCP/workflows/Docker%20Build/badge.svg)](https://github.com/jlwainwright/ProxmoxMCP/actions/workflows/docker.yml)
+[![Security](https://github.com/jlwainwright/ProxmoxMCP/workflows/Security/badge.svg)](https://github.com/jlwainwright/ProxmoxMCP/actions/workflows/security.yml)
+[![codecov](https://codecov.io/gh/jlwainwright/ProxmoxMCP/branch/main/graph/badge.svg)](https://codecov.io/gh/jlwainwright/ProxmoxMCP)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ![ProxmoxMCP](https://github.com/user-attachments/assets/e32ab79f-be8a-420c-ab2d-475612150534)
 
 A Python-based Model Context Protocol (MCP) server for interacting with Proxmox hypervisors, providing a clean interface for managing nodes, VMs, and containers.
@@ -368,6 +375,136 @@ proxmox-mcp/
 ├── pyproject.toml            # Project metadata and dependencies
 └── LICENSE                   # MIT License
 ```
+
+## 🐳 Docker Deployment
+
+The ProxmoxMCP server is available as a Docker container for easy deployment:
+
+### Quick Start with Docker
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/jlwainwright/proxmoxmcp:latest
+
+# Create config file
+mkdir -p $(pwd)/config
+cat > $(pwd)/config/config.json << 'EOF'
+{
+  "proxmox": {
+    "host": "your-proxmox-host.com",
+    "port": 8006,
+    "verify_ssl": false,
+    "service": "PVE"
+  },
+  "auth": {
+    "user": "your-user@pam",
+    "token_name": "your-token-name",
+    "token_value": "your-token-value"
+  },
+  "logging": {
+    "level": "INFO"
+  }
+}
+EOF
+
+# Run container
+docker run -d \
+  --name proxmox-mcp \
+  -v $(pwd)/config/config.json:/app/config.json:ro \
+  -p 8080:8080 \
+  ghcr.io/jlwainwright/proxmoxmcp:latest
+```
+
+### Docker Compose Deployment
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  proxmox-mcp:
+    image: ghcr.io/jlwainwright/proxmoxmcp:latest
+    container_name: proxmox-mcp
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config/config.json:/app/config.json:ro
+    restart: unless-stopped
+    environment:
+      - PROXMOX_MCP_CONFIG=/app/config.json
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8080/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+```
+
+### Multi-Architecture Support
+
+The Docker images support multiple architectures:
+- `linux/amd64` (Intel/AMD 64-bit)
+- `linux/arm64` (ARM 64-bit, Apple Silicon, ARM servers)
+
+### Available Tags
+
+| Tag | Description |
+|-----|-------------|
+| `latest` | Latest stable release |
+| `dev` | Development build with additional tools |
+| `v1.x.x` | Specific version tags |
+| `main` | Latest commit from main branch |
+
+### Building from Source
+
+```bash
+# Clone repository
+git clone https://github.com/jlwainwright/ProxmoxMCP.git
+cd ProxmoxMCP
+
+# Build Docker image
+docker build -t proxmox-mcp:local .
+
+# Run locally built image
+docker run -v $(pwd)/config.json:/app/config.json proxmox-mcp:local
+```
+
+## 🚀 Automated Deployment
+
+### GitHub Actions CI/CD
+
+This repository includes comprehensive GitHub Actions workflows:
+
+- **🔄 Continuous Integration**: Runs tests, linting, and security scans on every push
+- **🐳 Docker Build**: Automatically builds and publishes Docker images
+- **🔒 Security Scanning**: Daily security scans with CodeQL, Trivy, and dependency audits
+- **📦 Release Automation**: Automated releases with changelog generation
+- **⬆️ Dependabot**: Automated dependency updates with security monitoring
+
+### Manual Release Process
+
+To create a new release:
+
+```bash
+# Tag the release
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+
+# GitHub Actions will automatically:
+# 1. Run full test suite
+# 2. Build and publish Docker images
+# 3. Create GitHub release with changelog
+# 4. Generate release artifacts
+```
+
+### Server-Side Deployment
+
+For server deployment, you can now:
+
+1. **Pull from GitHub**: `git pull origin main`
+2. **Rebuild automatically**: GitHub Actions will trigger on push
+3. **Use Docker**: `docker pull ghcr.io/jlwainwright/proxmoxmcp:latest`
+4. **Monitor builds**: Check [Actions tab](https://github.com/jlwainwright/ProxmoxMCP/actions) for build status
 
 ## 📄 License
 

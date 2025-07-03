@@ -1,0 +1,191 @@
+name: Security
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run security scan daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'python' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-extended,security-and-quality
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"
+
+  dependency-scan:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Run Safety check
+      run: |
+        pip install safety
+        safety check --json --output safety-report.json || true
+
+    - name: Run pip-audit
+      run: |
+        pip install pip-audit
+        pip-audit --format=json --output=audit-report.json || true
+
+    - name: Upload dependency scan results
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-reports
+        path: |
+          safety-report.json
+          audit-report.json
+
+  secrets-scan:
+    name: Secrets Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run TruffleHog OSS
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified
+
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        cat > Dockerfile << 'EOF'
+        FROM python:3.11-slim
+        
+        ENV PYTHONUNBUFFERED=1
+        RUN apt-get update && apt-get install -y git build-essential && rm -rf /var/lib/apt/lists/*
+        RUN groupadd -r proxmox && useradd -r -g proxmox proxmox
+        
+        WORKDIR /app
+        COPY pyproject.toml setup.py ./
+        COPY src/ ./src/
+        
+        RUN pip install --upgrade pip && pip install -e .
+        USER proxmox
+        CMD ["python", "-m", "proxmox_mcp.server"]
+        EOF
+        
+        docker build -t proxmox-mcp:test .
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'proxmox-mcp:test'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  security-policy:
+    name: Security Policy Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check for security policy
+      run: |
+        if [ ! -f SECURITY.md ]; then
+          echo "⚠️ SECURITY.md file not found"
+          echo "Creating basic security policy..."
+          cat > SECURITY.md << 'EOF'
+        # Security Policy
+        
+        ## Supported Versions
+        
+        | Version | Supported          |
+        | ------- | ------------------ |
+        | 1.x.x   | :white_check_mark: |
+        | < 1.0   | :x:                |
+        
+        ## Reporting a Vulnerability
+        
+        Please report security vulnerabilities to: [your-email@example.com]
+        
+        - Response time: 48 hours
+        - Updates: Weekly
+        - Location: GitHub Security Advisories
+        
+        Please do not report security vulnerabilities through public GitHub issues.
+        EOF
+        else
+          echo "✅ SECURITY.md found"
+        fi
+
+    - name: Commit security policy if created
+      run: |
+        if [ ! -f SECURITY.md ]; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add SECURITY.md
+          git commit -m "feat: add security policy" || exit 0
+          git push || exit 0
+        fi
