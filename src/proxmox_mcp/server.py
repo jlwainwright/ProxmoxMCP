@@ -20,8 +20,7 @@ import os
 import sys
 import signal
 
-from mcp.server import Server
-from mcp.server.stdio import StdioServerTransport
+from mcp.server import FastMCP
 
 from .config.loader import load_config
 from .core.logging import setup_logging
@@ -63,10 +62,8 @@ class ProxmoxMCPServer:
         self.cluster_tools = ClusterTools(self.proxmox)
         
         # Initialize MCP server
-        self.mcp = Server(
-            "ProxmoxMCP",
-            "1.0.0",
-            capabilities={},
+        self.mcp = FastMCP(
+            name="ProxmoxMCP"
         )
         self._setup_tools()
 
@@ -113,16 +110,14 @@ class ProxmoxMCPServer:
 
     def start(self) -> None:
         """Start the MCP server.
-        
+
         Initializes the server with:
         - Signal handlers for graceful shutdown (SIGINT, SIGTERM)
         - Async runtime for handling concurrent requests
         - Error handling and logging
-        
+
         The server runs until terminated by a signal or fatal error.
         """
-        import anyio
-
         def signal_handler(signum, frame):
             self.logger.info("Received signal to shutdown...")
             sys.exit(0)
@@ -133,18 +128,18 @@ class ProxmoxMCPServer:
 
         try:
             self.logger.info("Starting MCP server...")
-            transport = StdioServerTransport()
-            anyio.run(self.mcp.run, transport)
+            self.mcp.run()
         except Exception as e:
             self.logger.error(f"Server error: {e}")
             sys.exit(1)
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the Proxmox MCP server."""
     config_path = os.getenv("PROXMOX_MCP_CONFIG")
     if not config_path:
         print("PROXMOX_MCP_CONFIG environment variable must be set")
         sys.exit(1)
-    
+
     try:
         server = ProxmoxMCPServer(config_path)
         server.start()
@@ -154,3 +149,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
+
+if __name__ == "__main__":
+    main()

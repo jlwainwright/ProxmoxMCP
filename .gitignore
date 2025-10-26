@@ -59,3 +59,15 @@ coverage.xml
 
 # Local configuration
 config/config.json
+proxmox-config/config.json
+proxmox-config/config-node-*.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Claude Code & AI tools
+.claude/
+.swarm/
+.claude-flow/

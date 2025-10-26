@@ -1,5 +1,9 @@
 # 🚀 Proxmox Manager - Proxmox MCP Server
 
+**Status:** ✅ **OPERATIONAL** *(Last tested: 2025-10-26)*
+**MCP SDK:** FastMCP (latest)
+**Tools Available:** 6 (nodes, VMs, storage, cluster management)
+
 [![CI](https://github.com/jlwainwright/ProxmoxMCP/workflows/CI/badge.svg)](https://github.com/jlwainwright/ProxmoxMCP/actions/workflows/ci.yml)
 [![Docker](https://github.com/jlwainwright/ProxmoxMCP/workflows/Docker%20Build/badge.svg)](https://github.com/jlwainwright/ProxmoxMCP/actions/workflows/docker.yml)
 [![Security](https://github.com/jlwainwright/ProxmoxMCP/workflows/Security/badge.svg)](https://github.com/jlwainwright/ProxmoxMCP/actions/workflows/security.yml)
